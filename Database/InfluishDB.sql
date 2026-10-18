@@ -76,6 +76,7 @@ CREATE TABLE Reports
 );
 GO
 
+
 -- ====================================================================
 --  HOW TO VERIFY TABLES WERE CREATED
 --
