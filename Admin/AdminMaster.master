@@ -1,0 +1,199 @@
+<%@ Master Language="VB" %>
+<%--
+    ================================================================
+    Admin/AdminMaster.master  —  Admin Master Page (Shared Layout)
+    Language  : C# (inline runat="server" block)
+    Purpose   : Provides the sidebar, top bar, and ContentPlaceHolders
+                that every Admin page reuses.
+    Syllabus  : Section 6 — Master Pages, Section 8 — Session State
+    ================================================================
+
+    WHAT IS A MASTER PAGE?
+    A master page is a template. Instead of repeating the sidebar
+    and topbar HTML on every page, we write it once here and all
+    Admin pages inherit it using MasterPageFile="~/Admin/AdminMaster.master"
+    ================================================================
+--%>
+
+<%-- ============================================================
+     VB SERVER-SIDE CODE — runs before the page is sent to browser
+     ============================================================ --%>
+<script runat="server">
+
+    ' ── Page_Load runs every time ANY Admin page is loaded ────────
+    Protected Sub Page_Load(ByVal sender As Object, ByVal e As EventArgs)
+        ' SESSION PROTECTION — if no Admin session exists, go to Login
+        ' Session("AdminLoggedIn") is set in Login.aspx after successful login
+        If Session("AdminLoggedIn") Is Nothing Then
+            Response.Redirect("~/Admin/Login.aspx")
+            Return   ' stop further processing
+        End If
+
+        ' Display the Admin name from session in the top bar
+        Dim adminName As String = If(Session("AdminName") IsNot Nothing,
+                                     Session("AdminName").ToString(), "Admin")
+        Dim adminRole As String = If(Session("AdminRole") IsNot Nothing,
+                                     Session("AdminRole").ToString(), "System Admin")
+
+        lblAdminName.Text = adminName
+        lblAdminRole.Text = adminRole
+
+        ' Show the first letter of the Admin name as the avatar
+        lblAvatar.Text = If(adminName.Length > 0,
+                            adminName(0).ToString().ToUpper(), "A")
+
+        ' ── Highlight the active sidebar link ─────────────────────
+        ' Get just the filename of the current page (e.g. "Dashboard.aspx")
+        Dim currentPage As String = System.IO.Path.GetFileName(
+                                        Request.Url.AbsolutePath).ToLower()
+
+        Select Case currentPage
+            Case "dashboard.aspx"
+                lnkDashboard.CssClass = "nav-item active"
+            Case "manageusers.aspx"
+                lnkUsers.CssClass = "nav-item active"
+            Case "managecampaigns.aspx"
+                lnkCampaigns.CssClass = "nav-item active"
+            Case "reportssupport.aspx"
+                lnkReports.CssClass = "nav-item active"
+        End Select
+    End Sub
+
+    ' ── Logout Button Click ────────────────────────────────────────
+    Protected Sub btnLogout_Click(ByVal sender As Object, ByVal e As EventArgs)
+        ' Clear ALL session data (removes AdminLoggedIn, AdminName, etc.)
+        Session.Clear()
+        Session.Abandon()  ' completely destroys the session
+
+        ' Send user back to Login page
+        Response.Redirect("~/Admin/Login.aspx")
+    End Sub
+
+</script>
+
+<!DOCTYPE html>
+<html lang="en">
+<head runat="server">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel — Influish</title>
+
+    <%-- Admin CSS — one folder up from the Admin/ subfolder --%>
+    <link href="../Content/admin.css" rel="stylesheet" />
+
+    <%-- ContentPlaceHolder for per-page <title> or extra CSS --%>
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server" />
+</head>
+<body>
+
+    <%-- The <form runat="server"> must wrap ALL server controls.
+         In a master page, this one form covers ALL content pages. --%>
+    <form id="frmAdminMaster" runat="server">
+        <div class="admin-wrapper">
+
+            <%-- ══════════════════════════════════════════════════
+                 SIDEBAR — fixed left panel, 260px wide
+                 Contains: Logo, Navigation links, Logout button
+                 ══════════════════════════════════════════════════ --%>
+            <nav class="sidebar">
+
+                <%-- Brand / Logo --%>
+                <div class="sidebar-brand">
+                    <div class="sidebar-logo-icon">i</div>
+                    <div>
+                        <div class="sidebar-brand-name">Influish</div>
+                        <div class="sidebar-brand-sub">Influencer Admin</div>
+                    </div>
+                </div>
+
+                <%-- Navigation Links
+                     asp:HyperLink renders as an <a> tag.
+                     CssClass is updated to "nav-item active"
+                     in Page_Load for the current page. --%>
+                <div class="sidebar-nav">
+
+                    <asp:HyperLink ID="lnkDashboard" runat="server"
+                        CssClass="nav-item"
+                        NavigateUrl="~/Admin/Dashboard.aspx">
+                        <span class="nav-icon">&#9632;</span>&nbsp; Dashboard
+                    </asp:HyperLink>
+
+                    <asp:HyperLink ID="lnkUsers" runat="server"
+                        CssClass="nav-item"
+                        NavigateUrl="~/Admin/ManageUsers.aspx">
+                        <span class="nav-icon">&#128100;</span>&nbsp; Users
+                    </asp:HyperLink>
+
+                    <asp:HyperLink ID="lnkCampaigns" runat="server"
+                        CssClass="nav-item"
+                        NavigateUrl="~/Admin/ManageCampaigns.aspx">
+                        <span class="nav-icon">&#128203;</span>&nbsp; Campaigns
+                    </asp:HyperLink>
+
+                    <asp:HyperLink ID="lnkReports" runat="server"
+                        CssClass="nav-item"
+                        NavigateUrl="~/Admin/ReportsSupport.aspx">
+                        <span class="nav-icon">&#128229;</span>&nbsp; Reports &amp; Support
+                    </asp:HyperLink>
+
+                </div>
+
+                <%-- Logout at bottom of sidebar --%>
+                <div class="sidebar-footer">
+                    <%-- asp:Button with OnClick triggers btnLogout_Click above --%>
+                    <asp:Button ID="btnLogout" runat="server"
+                        CssClass="logout-btn"
+                        Text="&#8594; Logout"
+                        OnClick="btnLogout_Click" />
+                </div>
+
+            </nav>
+            <%-- end sidebar --%>
+
+
+            <%-- ══════════════════════════════════════════════════
+                 MAIN CONTENT AREA — everything to the right of sidebar
+                 ══════════════════════════════════════════════════ --%>
+            <div class="main-content">
+
+                <%-- Top Bar --%>
+                <div class="topbar">
+                    <div class="topbar-title">
+                        <%-- Each page puts its own title here --%>
+                        <asp:ContentPlaceHolder ID="PageTitle" runat="server">
+                            Admin Panel
+                        </asp:ContentPlaceHolder>
+                    </div>
+                    <div class="topbar-right">
+                        <div class="topbar-bell" title="Notifications">&#128276;</div>
+                        <div class="topbar-admin">
+                            <div>
+                                <div class="topbar-admin-name">
+                                    <asp:Label ID="lblAdminName" runat="server" Text="Admin" />
+                                </div>
+                                <div class="topbar-admin-role">
+                                    <asp:Label ID="lblAdminRole" runat="server" Text="System Admin" />
+                                </div>
+                            </div>
+                            <div class="topbar-avatar">
+                                <asp:Label ID="lblAvatar" runat="server" Text="A" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <%-- end topbar --%>
+
+                <%-- Page Body — each Admin page fills this area --%>
+                <div class="page-content">
+                    <asp:ContentPlaceHolder ID="MainContent" runat="server" />
+                </div>
+
+            </div>
+            <%-- end main-content --%>
+
+        </div>
+        <%-- end admin-wrapper --%>
+    </form>
+
+</body>
+</html>
