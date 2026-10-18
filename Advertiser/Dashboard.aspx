@@ -1,4 +1,4 @@
-<%@ Page Language="VB" AutoEventWireup="true" CodeBehind="Dashboard.aspx.vb" Inherits="Influish_net.Advertiser.Dashboard" MasterPageFile="~/Site.Master" Title="Advertiser Dashboard" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Dashboard.aspx.cs" Inherits="Influish_net.Advertiser.Dashboard" MasterPageFile="~/Site.Master" Title="Advertiser Dashboard" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <!-- Top Welcome Header & Action -->
@@ -123,7 +123,7 @@
                     <asp:TemplateField HeaderText="APPLICANTS">
                         <ItemTemplate>
                             <span class="fw-semibold text-secondary">
-                                <%# If(Eval("ApplicantCount") IsNot DBNull.Value AndAlso Convert.ToInt32(Eval("ApplicantCount")) > 0, Eval("ApplicantCount").ToString() & " pending", "0 applicants") %>
+                                <%# FormatApplicantCount(Eval("ApplicantCount")) %>
                             </span>
                         </ItemTemplate>
                     </asp:TemplateField>

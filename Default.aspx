@@ -1,4 +1,4 @@
-<%@ Page Title="Welcome to Influish" Language="VB" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Default.aspx.vb" Inherits="Influish_net._Default" %>
+<%@ Page Title="Welcome to Influish" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Influish_net._Default" %>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
     <!-- Hero Banner (Figma Page 2 & Page 4) -->

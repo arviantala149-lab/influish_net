@@ -1,4 +1,4 @@
-<%@ Page Language="VB" AutoEventWireup="true" CodeBehind="Notifications.aspx.vb" Inherits="Influish_net.Advertiser.Notifications" MasterPageFile="~/Site.Master" Title="Notifications" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Notifications.aspx.cs" Inherits="Influish_net.Advertiser.Notifications" MasterPageFile="~/Site.Master" Title="Notifications" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <!-- Breadcrumb -->
