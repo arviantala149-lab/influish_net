@@ -1,20 +1,17 @@
-<%@ Page Language="VB" MasterPageFile="~/Admin/AdminMaster.master" %>
+<%@ Page Language="C#" MasterPageFile="~/Admin/AdminMaster.master"
+         CodeFile="ReportsSupport.aspx.cs" Inherits="Admin_ReportsSupport" %>
 <%--
     ================================================================
-    Admin/ReportsSupport.aspx  —  Reports & Support Page
-    Language    : VB (inline runat="server")
+    Admin/ReportsSupport.aspx  -  Reports & Support Page
+    Language    : C# (code-behind: ReportsSupport.aspx.cs)
     Master Page : AdminMaster.master
-    Syllabus    : Section 6 — GridView, Label, Controls
-                  Section 7 — ADO.NET: SqlConnection, SqlCommand,
-                              SqlDataReader (Connected model),
-                              SqlDataAdapter, DataTable
+    Syllabus    : Section 6 - GridView, Label, Controls
+                  Section 7 - ADO.NET: SqlCommand+SqlDataReader (Connected)
+                              and SqlDataAdapter+DataTable (Disconnected)
     ================================================================
-
     NOTE ON ADO.NET MODELS USED HERE:
-    This page uses TWO ADO.NET models to demonstrate the syllabus:
-    1. CONNECTED model   — SqlCommand + SqlDataReader for the 4 stat counts
-    2. DISCONNECTED model — SqlDataAdapter + DataTable for the GridView rows
-    Both concepts are in Section 7 of the syllabus.
+    1. CONNECTED model   - SqlCommand + ExecuteScalar for the 4 stat counts
+    2. DISCONNECTED model - SqlDataAdapter + DataTable for the GridView rows
     ================================================================
 --%>
 
@@ -24,153 +21,16 @@
 
 <asp:Content ContentPlaceHolderID="MainContent" runat="server">
 
-    <script runat="server">
-
-        ' ── Page_Load ──────────────────────────────────────────
-        Protected Sub Page_Load(ByVal sender As Object, ByVal e As EventArgs)
-            If Not IsPostBack Then
-                LoadReportStats()   ' fill the 4 summary cards
-                LoadReports()       ' fill the GridView
-            End If
-        End Sub
-
-        ' ────────────────────────────────────────────────────────────
-        ' CONNECTED ADO.NET MODEL — SqlConnection + SqlCommand
-        ' Demonstrates: SqlConnection.Open(), SqlCommand, ExecuteScalar()
-        ' ────────────────────────────────────────────────────────────
-        Private Sub LoadReportStats()
-            Dim connStr As String = System.Configuration.ConfigurationManager _
-                                    .ConnectionStrings("InfluishDB").ConnectionString
-
-            Using conn As New System.Data.SqlClient.SqlConnection(connStr)
-                Try
-                    conn.Open()   ' explicitly open connection (Connected model)
-
-                    ' Total Reports count
-                    Dim cmd As New System.Data.SqlClient.SqlCommand(
-                        "SELECT COUNT(*) FROM Reports", conn)
-                    lblTotal.Text = cmd.ExecuteScalar().ToString()
-
-                    ' Pending count
-                    cmd.CommandText = "SELECT COUNT(*) FROM Reports WHERE Status='Pending'"
-                    lblPending.Text = cmd.ExecuteScalar().ToString()
-
-                    ' In Review count
-                    cmd.CommandText = "SELECT COUNT(*) FROM Reports WHERE Status='In Review'"
-                    lblInReview.Text = cmd.ExecuteScalar().ToString()
-
-                    ' Resolved count
-                    cmd.CommandText = "SELECT COUNT(*) FROM Reports WHERE Status='Resolved'"
-                    lblResolved.Text = cmd.ExecuteScalar().ToString()
-
-                    conn.Close()  ' explicitly close connection
-                Catch ex As Exception
-                    ' If DB not available, show dashes so page still looks clean
-                    lblTotal.Text    = "-"
-                    lblPending.Text  = "-"
-                    lblInReview.Text = "-"
-                    lblResolved.Text = "-"
-                    lblError.Text    = "&#9888; Could not load stats. " & ex.Message
-                    lblError.Visible = True
-                End Try
-            End Using
-        End Sub
-
-        ' ────────────────────────────────────────────────────────────
-        ' DISCONNECTED ADO.NET MODEL — SqlDataAdapter + DataTable
-        ' ────────────────────────────────────────────────────────────
-        Private Sub LoadReports()
-            Dim connStr As String = System.Configuration.ConfigurationManager _
-                                    .ConnectionStrings("InfluishDB").ConnectionString
-
-            Using conn As New System.Data.SqlClient.SqlConnection(connStr)
-                Try
-                    Dim query As String = "SELECT ReportID, ReportType, Subject, " &
-                                          "ReportedBy, ReportDate, Priority, Status " &
-                                          "FROM Reports ORDER BY ReportDate DESC"
-
-                    Dim da As New System.Data.SqlClient.SqlDataAdapter(query, conn)
-                    Dim dt As New System.Data.DataTable()
-                    da.Fill(dt)
-
-                    gvReports.DataSource = dt
-                    gvReports.DataBind()
-
-                    lblCount.Text = "Showing 1 to " & dt.Rows.Count &
-                                    " of " & dt.Rows.Count & " entries"
-                Catch ex As Exception
-                    If Not lblError.Visible Then
-                        lblError.Text    = "&#9888; Could not load reports. " & ex.Message
-                        lblError.Visible = True
-                    End If
-                End Try
-            End Using
-        End Sub
-
-        ' ── Helper: badge class for ReportType ────────────────────
-        Protected Function GetTypeBadge(ByVal type As Object) As String
-            Select Case type.ToString().ToLower()
-                Case "report"  : Return "badge badge-report"
-                Case "support" : Return "badge badge-support"
-                Case Else      : Return "badge"
-            End Select
-        End Function
-
-        ' ── Helper: badge class for Priority ──────────────────────
-        Protected Function GetPriorityBadge(ByVal priority As Object) As String
-            Select Case priority.ToString().ToLower()
-                Case "high"   : Return "badge badge-high"
-                Case "medium" : Return "badge badge-medium"
-                Case "low"    : Return "badge badge-low"
-                Case Else     : Return "badge"
-            End Select
-        End Function
-
-        ' ── Helper: badge class for Status ────────────────────────
-        Protected Function GetStatusBadge(ByVal status As Object) As String
-            Select Case status.ToString().ToLower()
-                Case "pending"   : Return "badge badge-pending"
-                Case "in review" : Return "badge badge-in-review"
-                Case "resolved"  : Return "badge badge-resolved"
-                Case Else        : Return "badge"
-            End Select
-        End Function
-
-    </script>rn "badge badge-high";
-                case "medium": return "badge badge-medium";
-                case "low":    return "badge badge-low";
-                default:       return "badge";
-            }
-        }
-
-        // ── Helper: badge class for Status ─────────────────────────
-        protected string GetStatusBadge(object status)
-        {
-            switch (status.ToString().ToLower())
-            {
-                case "pending":   return "badge badge-pending";
-                case "in review": return "badge badge-in-review";
-                case "resolved":  return "badge badge-resolved";
-                default:          return "badge";
-            }
-        }
-
-    </script>
-
-    <%-- ── Page Header ─────────────────────────────────────────── --%>
+    <%-- Page Header --%>
     <div class="page-header">
         <h2>Reports &amp; Support</h2>
         <p>Review user complaints and support messages.</p>
     </div>
 
-    <%-- ── Error Label ─────────────────────────────────────────── --%>
-    <asp:Label ID="lblError" runat="server"
-        CssClass="msg-error" Visible="false" />
+    <%-- Error Label --%>
+    <asp:Label ID="lblError" runat="server" CssClass="msg-error" Visible="false" />
 
-    <%-- ══════════════════════════════════════════════════════════
-         STAT CARDS — 4 summary counts (from Connected ADO.NET)
-         Uses SqlCommand + ExecuteScalar() to count rows
-         ══════════════════════════════════════════════════════════ --%>
+    <%-- STAT CARDS: 4 summary counts (Connected ADO.NET) --%>
     <div class="reports-stats">
 
         <div class="report-stat-card">
@@ -214,19 +74,15 @@
         </div>
 
     </div>
-    <%-- end reports-stats --%>
 
-
-    <%-- ══════════════════════════════════════════════════════════
-         TAB STRIP — All / Reports / Support Messages
-         ══════════════════════════════════════════════════════════ --%>
+    <%-- TAB STRIP --%>
     <div class="reports-tabs">
         <button type="button" class="report-tab active">All</button>
         <button type="button" class="report-tab">Reports</button>
         <button type="button" class="report-tab">Support Messages</button>
     </div>
 
-    <%-- ── Toolbar: Search ────────────────────────────────────── --%>
+    <%-- Toolbar: Search --%>
     <div class="toolbar" style="margin-bottom:16px;">
         <div class="search-box">
             <span class="search-icon">&#128269;</span>
@@ -238,7 +94,7 @@
         </button>
     </div>
 
-    <%-- ── Data Card with GridView ────────────────────────────── --%>
+    <%-- Data Card with GridView --%>
     <div class="data-card">
 
         <asp:GridView ID="gvReports" runat="server"
@@ -251,7 +107,6 @@
 
             <Columns>
 
-                <%-- Column 1: Type badge (Report / Support) --%>
                 <asp:TemplateField HeaderText="Type">
                     <ItemTemplate>
                         <span class='<%# GetTypeBadge(Eval("ReportType")) %>'>
@@ -260,27 +115,21 @@
                     </ItemTemplate>
                 </asp:TemplateField>
 
-                <%-- Column 2: Subject --%>
                 <asp:BoundField DataField="Subject" HeaderText="Subject" />
-
-                <%-- Column 3: Reported By --%>
                 <asp:BoundField DataField="ReportedBy" HeaderText="Reported By" />
 
-                <%-- Column 4: Date --%>
                 <asp:BoundField DataField="ReportDate"
                     HeaderText="Date"
                     DataFormatString="{0:dd MMM yyyy}" />
 
-                <%-- Column 5: Priority badge --%>
                 <asp:TemplateField HeaderText="Priority">
                     <ItemTemplate>
                         <span class='<%# GetPriorityBadge(Eval("Priority")) %>'>
-                            + <%# Eval("Priority") %>
+                            <%# Eval("Priority") %>
                         </span>
                     </ItemTemplate>
                 </asp:TemplateField>
 
-                <%-- Column 6: Status badge --%>
                 <asp:TemplateField HeaderText="Status">
                     <ItemTemplate>
                         <span class='<%# GetStatusBadge(Eval("Status")) %>'>
@@ -289,7 +138,6 @@
                     </ItemTemplate>
                 </asp:TemplateField>
 
-                <%-- Column 7: Action button --%>
                 <asp:TemplateField HeaderText="Action">
                     <ItemTemplate>
                         <a href="#" class="btn-action btn-primary-action">View Details</a>
@@ -313,6 +161,5 @@
         </div>
 
     </div>
-    <%-- end data-card --%>
 
 </asp:Content>

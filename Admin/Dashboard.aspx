@@ -1,49 +1,33 @@
-<%@ Page Language="VB" MasterPageFile="~/Admin/AdminMaster.master" %>
+<%@ Page Language="C#" MasterPageFile="~/Admin/AdminMaster.master"
+         CodeFile="Dashboard.aspx.cs" Inherits="Admin_Dashboard" %>
 <%--
     ================================================================
-    Admin/Dashboard.aspx  —  Admin Dashboard
-    Language    : C# (inline runat="server")
+    Admin/Dashboard.aspx  -  Admin Dashboard
+    Language    : C# (code-behind: Dashboard.aspx.cs)
     Master Page : AdminMaster.master (provides sidebar + topbar)
-    Syllabus    : Section 6 — ASP.NET Page, Master Pages, Controls
+    Syllabus    : Section 6 - ASP.NET Page, Master Pages, Controls
     ================================================================
-
     WHAT THIS PAGE DOES:
     Shows summary statistics and recent platform activity.
     The stats cards are static (hardcoded) as shown in the Figma.
-    Session protection is handled by AdminMaster.master Page_Load.
     ================================================================
 --%>
 
-<%-- ── Page Title shown in the topbar ──────────────────────────── --%>
 <asp:Content ContentPlaceHolderID="PageTitle" runat="server">
     Admin Dashboard
 </asp:Content>
 
-<%-- ── Main page body ────────────────────────────────────────────── --%>
 <asp:Content ContentPlaceHolderID="MainContent" runat="server">
 
-    <script runat="server">
-        ' ── Page_Load ─────────────────────────────────────────────
-        ' Session check is already done in AdminMaster.master.
-        ' Dashboard shows static data from the Figma design.
-        Protected Sub Page_Load(ByVal sender As Object, ByVal e As EventArgs)
-            ' No additional server code needed for the static Dashboard.
-        End Sub
-    </script>
-
-    <%-- ── Page Header ──────────────────────────────────────────── --%>
+    <%-- Page Header --%>
     <div class="page-header">
         <h2>Admin Dashboard</h2>
         <p>Monitor users, campaigns and platform activity.</p>
     </div>
 
-    <%-- ══════════════════════════════════════════════════════════
-         STATS CARDS (4 cards matching Figma design)
-         These figures are static as shown in the Figma reference.
-         ══════════════════════════════════════════════════════════ --%>
+    <%-- STATS CARDS (4 cards) --%>
     <div class="stats-grid">
 
-        <%-- Card 1: Total Users --%>
         <div class="stat-card">
             <div class="stat-card-top">
                 <span class="stat-label">Total Users</span>
@@ -55,7 +39,6 @@
             </div>
         </div>
 
-        <%-- Card 2: Total Influencers --%>
         <div class="stat-card">
             <div class="stat-card-top">
                 <span class="stat-label">Total Influencers</span>
@@ -67,7 +50,6 @@
             </div>
         </div>
 
-        <%-- Card 3: Total Advertisers --%>
         <div class="stat-card">
             <div class="stat-card-top">
                 <span class="stat-label">Total Advertisers</span>
@@ -79,7 +61,6 @@
             </div>
         </div>
 
-        <%-- Card 4: Active Campaigns --%>
         <div class="stat-card">
             <div class="stat-card-top">
                 <span class="stat-label">Active Campaigns</span>
@@ -92,16 +73,10 @@
         </div>
 
     </div>
-    <%-- end stats-grid --%>
 
-
-    <%-- ══════════════════════════════════════════════════════════
-         BOTTOM ROW — Recent Activities  +  Pending Actions
-         (2 side-by-side cards as in Figma design)
-         ══════════════════════════════════════════════════════════ --%>
+    <%-- BOTTOM ROW: Recent Activities + Pending Actions --%>
     <div class="dashboard-bottom">
 
-        <%-- ── Recent Activities Card ───────────────────────────── --%>
         <div class="card">
             <div class="card-header">
                 <h3>Recent Activities</h3>
@@ -112,9 +87,7 @@
                 <div class="activity-item">
                     <div class="activity-avatar">S</div>
                     <div>
-                        <div class="activity-text">
-                            Sarah Jenkins registered as a new influencer.
-                        </div>
+                        <div class="activity-text">Sarah Jenkins registered as a new influencer.</div>
                         <span class="activity-time">10 minutes ago</span>
                     </div>
                 </div>
@@ -122,9 +95,7 @@
                 <div class="activity-item">
                     <div class="activity-avatar blue">N</div>
                     <div>
-                        <div class="activity-text">
-                            Nike created a new campaign: &quot;Summer Activewear 2024&quot;.
-                        </div>
+                        <div class="activity-text">Nike created a new campaign: &quot;Summer Activewear 2024&quot;.</div>
                         <span class="activity-time">45 minutes ago</span>
                     </div>
                 </div>
@@ -132,9 +103,7 @@
                 <div class="activity-item">
                     <div class="activity-avatar orange">T</div>
                     <div>
-                        <div class="activity-text">
-                            TechReviewer24 registered as a new influencer.
-                        </div>
+                        <div class="activity-text">TechReviewer24 registered as a new influencer.</div>
                         <span class="activity-time">2 hours ago</span>
                     </div>
                 </div>
@@ -142,9 +111,7 @@
                 <div class="activity-item">
                     <div class="activity-avatar green">C</div>
                     <div>
-                        <div class="activity-text">
-                            Campaign &quot;Eco Friendly Launch&quot; marked as completed.
-                        </div>
+                        <div class="activity-text">Campaign &quot;Eco Friendly Launch&quot; marked as completed.</div>
                         <span class="activity-time">3 hours ago</span>
                     </div>
                 </div>
@@ -152,19 +119,14 @@
                 <div class="activity-item">
                     <div class="activity-avatar">L</div>
                     <div>
-                        <div class="activity-text">
-                            Local Coffee Shop created a new campaign: &quot;Morning Brew Promo&quot;.
-                        </div>
+                        <div class="activity-text">Local Coffee Shop created a new campaign: &quot;Morning Brew Promo&quot;.</div>
                         <span class="activity-time">5 hours ago</span>
                     </div>
                 </div>
 
             </div>
         </div>
-        <%-- end Recent Activities card --%>
 
-
-        <%-- ── Pending Actions Card ──────────────────────────────── --%>
         <div class="card">
             <div class="card-header">
                 <h3>Pending Actions</h3>
@@ -207,9 +169,7 @@
 
             </div>
         </div>
-        <%-- end Pending Actions card --%>
 
     </div>
-    <%-- end dashboard-bottom --%>
 
 </asp:Content>
