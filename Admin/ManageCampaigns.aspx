@@ -1,5 +1,9 @@
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 <%@ Page Language="VB" MasterPageFile="~/Admin/AdminMaster.master" %>
+=======
+<%@ Page Language="C#" MasterPageFile="~/Admin/AdminMaster.master" %>
+>>>>>>> Stashed changes
 =======
 <%@ Page Language="C#" MasterPageFile="~/Admin/AdminMaster.master" %>
 >>>>>>> Stashed changes
@@ -22,6 +26,7 @@
 
     <script runat="server">
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
         ' ── Page_Load ──────────────────────────────────────────
         Protected Sub Page_Load(ByVal sender As Object, ByVal e As EventArgs)
@@ -92,6 +97,8 @@
             Return "&#8377;" & String.Format("{0:N0}", amount)
         End Function
 =======
+=======
+>>>>>>> Stashed changes
         // ── Page_Load ──────────────────────────────────────────────
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -183,6 +190,9 @@
             decimal amount = Convert.ToDecimal(budget);
             return "&#8377;" + String.Format("{0:N0}", amount);
         }
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
     </script>
