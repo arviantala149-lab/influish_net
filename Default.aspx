@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 <%@ Page Title="Welcome to Influish" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Influish_net._Default" %>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
@@ -89,3 +90,51 @@
         </div>
     </div>
 </asp:Content>
+=======
+<%@ Page Language="VB" AutoEventWireup="true" CodeBehind="Default.aspx.vb" Inherits="Influish_net._Default" %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Influish — Influencer Marketing Platform Admin Panel" />
+    <title>Influish — Influencer Marketing Platform</title>
+
+    <%-- Link to the Admin CSS file for Splash Screen styles --%>
+    <link href="Content/admin.css" rel="stylesheet" />
+</head>
+<body class="splash-body">
+
+    <%-- ── Logo and Brand ────────────────────────────────────── --%>
+    <div class="splash-logo-wrap">
+        <div class="splash-logo-icon">i</div>
+        <div class="splash-brand-text">
+            <h1>Influish</h1>
+            <p>Influencer Admin</p>
+        </div>
+    </div>
+
+    <%-- ── Tagline ─────────────────────────────────────────────── --%>
+    <p class="splash-subtitle">Connecting Brands &amp; Influencers</p>
+
+    <%-- ── Animated Loading Dots ──────────────────────────────── --%>
+    <div class="splash-loader">
+        <span class="splash-dot"></span>
+        <span class="splash-dot"></span>
+        <span class="splash-dot"></span>
+    </div>
+
+    <%-- ── Redirect Text ──────────────────────────────────────── --%>
+    <p class="splash-redirect">Redirecting to Admin Panel...</p>
+
+    <%-- ── JavaScript: Auto-redirect after 3 seconds ─────────── --%>
+    <script type="text/javascript">
+        // Wait 3000 milliseconds (3 seconds), then open Admin Login page
+        setTimeout(function () {
+            window.location.href = 'Admin/Login.aspx';
+        }, 3000);
+    </script>
+
+</body>
+</html>
+>>>>>>> Stashed changes
