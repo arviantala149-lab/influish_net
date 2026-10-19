@@ -1,5 +1,9 @@
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 <%@ Master Language="VB" %>
+=======
+<%@ Master Language="C#" %>
+>>>>>>> Stashed changes
 =======
 <%@ Master Language="C#" %>
 >>>>>>> Stashed changes
@@ -20,6 +24,7 @@
 --%>
 
 <%-- ============================================================
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
      VB SERVER-SIDE CODE — runs before the page is sent to browser
      ============================================================ --%>
@@ -74,6 +79,8 @@
         Response.Redirect("~/Admin/Login.aspx")
     End Sub
 =======
+=======
+>>>>>>> Stashed changes
      C# SERVER-SIDE CODE — runs before the page is sent to browser
      ============================================================ --%>
 <script runat="server">
@@ -133,6 +140,9 @@
         // Send user back to Login page
         Response.Redirect("~/Admin/Login.aspx");
     }
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 </script>
