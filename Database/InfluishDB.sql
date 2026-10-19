@@ -76,7 +76,10 @@ CREATE TABLE Reports
 );
 GO
 
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 -- ====================================================================
 --  HOW TO VERIFY TABLES WERE CREATED
 --
