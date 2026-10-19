@@ -1,0 +1,84 @@
+<%@ Master Language="C#" CodeFile="AdminMaster.master.cs" Inherits="Admin_AdminMaster" %>
+<%--
+    ================================================================
+    Admin/AdminMaster.master  - Admin Master Page (Shared Layout)
+    Language  : C# (code-behind: AdminMaster.master.cs)
+    Purpose   : Provides the sidebar, top bar, and ContentPlaceHolders
+                that every Admin page reuses.
+    Syllabus  : Section 6 - Master Pages
+    NOTE      : No Admin Login required - Dashboard opens directly.
+    ================================================================
+--%>
+<!DOCTYPE html>
+<html lang="en">
+<head runat="server">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel - Influish</title>
+    <link href="../Content/admin.css" rel="stylesheet" />
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server" />
+</head>
+<body>
+    <form id="frmAdminMaster" runat="server">
+        <div class="admin-wrapper">
+            <nav class="sidebar">
+                <div class="sidebar-brand">
+                    <div class="sidebar-logo-icon">i</div>
+                    <div>
+                        <div class="sidebar-brand-name">Influish</div>
+                        <div class="sidebar-brand-sub">Influencer Admin</div>
+                    </div>
+                </div>
+                <div class="sidebar-nav">
+                    <asp:HyperLink ID="lnkDashboard" runat="server" CssClass="nav-item"
+                        NavigateUrl="~/Admin/Dashboard.aspx">
+                        <span class="nav-icon">&#9632;</span>&nbsp; Dashboard
+                    </asp:HyperLink>
+                    <asp:HyperLink ID="lnkUsers" runat="server" CssClass="nav-item"
+                        NavigateUrl="~/Admin/ManageUsers.aspx">
+                        <span class="nav-icon">&#128100;</span>&nbsp; Users
+                    </asp:HyperLink>
+                    <asp:HyperLink ID="lnkCampaigns" runat="server" CssClass="nav-item"
+                        NavigateUrl="~/Admin/ManageCampaigns.aspx">
+                        <span class="nav-icon">&#128203;</span>&nbsp; Campaigns
+                    </asp:HyperLink>
+                    <asp:HyperLink ID="lnkReports" runat="server" CssClass="nav-item"
+                        NavigateUrl="~/Admin/ReportsSupport.aspx">
+                        <span class="nav-icon">&#128229;</span>&nbsp; Reports &amp; Support
+                    </asp:HyperLink>
+                </div>
+                <div class="sidebar-footer">
+                    <asp:Button ID="btnLogout" runat="server" CssClass="logout-btn"
+                        Text="Logout" OnClick="btnLogout_Click" />
+                </div>
+            </nav>
+            <div class="main-content">
+                <div class="topbar">
+                    <div class="topbar-title">
+                        <asp:ContentPlaceHolder ID="PageTitle" runat="server">Admin Panel</asp:ContentPlaceHolder>
+                    </div>
+                    <div class="topbar-right">
+                        <div class="topbar-bell" title="Notifications">&#128276;</div>
+                        <div class="topbar-admin">
+                            <div>
+                                <div class="topbar-admin-name">
+                                    <asp:Label ID="lblAdminName" runat="server" Text="Admin" />
+                                </div>
+                                <div class="topbar-admin-role">
+                                    <asp:Label ID="lblAdminRole" runat="server" Text="System Admin" />
+                                </div>
+                            </div>
+                            <div class="topbar-avatar">
+                                <asp:Label ID="lblAvatar" runat="server" Text="A" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-content">
+                    <asp:ContentPlaceHolder ID="MainContent" runat="server" />
+                </div>
+            </div>
+        </div>
+    </form>
+</body>
+</html>
