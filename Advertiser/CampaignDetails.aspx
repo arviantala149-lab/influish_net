@@ -1,4 +1,4 @@
-<%@ Page Language="VB" AutoEventWireup="true" CodeBehind="CampaignDetails.aspx.vb" Inherits="Influish_net.Advertiser.CampaignDetails" MasterPageFile="~/Site.Master" Title="Campaign Applicants" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="CampaignDetails.aspx.cs" Inherits="Influish_net.Advertiser.CampaignDetails" MasterPageFile="~/Site.Master" Title="Campaign Applicants" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <!-- Breadcrumb -->
@@ -152,17 +152,17 @@
                         <ItemTemplate>
                             <div class="d-flex align-items-center gap-2">
                                 <asp:HyperLink ID="lnkProfile" runat="server" Text="View" 
-                                    NavigateUrl='<%# String.Format("InfluencerProfile.aspx?id={0}&appId={1}&cid={2}", Eval("InfluencerID"), Eval("ApplicationID"), Request.QueryString("id")) %>' 
+                                    NavigateUrl='<%# String.Format("InfluencerProfile.aspx?id={0}&appId={1}&cid={2}", Eval("InfluencerID"), Eval("ApplicationID"), Request.QueryString["id"]) %>' 
                                     CssClass="btn btn-sm btn-outline-primary" style="border-radius:6px; font-size:12px; font-weight:600;" />
 
                                 <asp:LinkButton ID="lnkAccept" runat="server" CommandName="Accept" CommandArgument='<%# Eval("ApplicationID") %>' 
                                     Text="Accept" OnClick="lnkAccept_Click" 
-                                    Visible='<%# Eval("Status").ToString().ToLower() = "pending" %>'
+                                    Visible='<%# IsPending(Eval("Status")) %>'
                                     CssClass="btn btn-sm btn-success text-white" style="border-radius:6px; font-size:12px; font-weight:600;" />
 
                                 <asp:LinkButton ID="lnkReject" runat="server" CommandName="Reject" CommandArgument='<%# Eval("ApplicationID") %>' 
                                     Text="Reject" OnClick="lnkReject_Click" 
-                                    Visible='<%# Eval("Status").ToString().ToLower() = "pending" %>'
+                                    Visible='<%# IsPending(Eval("Status")) %>'
                                     CssClass="btn btn-sm btn-outline-danger" style="border-radius:6px; font-size:12px; font-weight:600;" />
                             </div>
                         </ItemTemplate>

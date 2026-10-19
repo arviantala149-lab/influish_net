@@ -1,4 +1,4 @@
-<%@ Master Language="VB" AutoEventWireup="true" CodeBehind="Site.master.vb" Inherits="Influish_net.SiteMaster" %>
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.Master.cs" Inherits="Influish_net.SiteMaster" %>
 
 <!DOCTYPE html>
 <html lang="en">
