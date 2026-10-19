@@ -1,5 +1,9 @@
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 <%@ Page Language="VB" MasterPageFile="~/Admin/AdminMaster.master" %>
+=======
+<%@ Page Language="C#" MasterPageFile="~/Admin/AdminMaster.master" %>
+>>>>>>> Stashed changes
 =======
 <%@ Page Language="C#" MasterPageFile="~/Admin/AdminMaster.master" %>
 >>>>>>> Stashed changes
@@ -28,6 +32,7 @@
 
     <script runat="server">
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         ' ── Page_Load ─────────────────────────────────────────────
         ' Session check is already done in AdminMaster.master.
         ' Dashboard shows static data from the Figma design.
@@ -35,6 +40,8 @@
             ' No additional server code needed for the static Dashboard.
         End Sub
 =======
+=======
+>>>>>>> Stashed changes
         // ── Page_Load ─────────────────────────────────────────────
         // Session check is already done in AdminMaster.master.
         // Dashboard shows static data from the Figma design.
@@ -42,6 +49,9 @@
         {
             // No additional server code needed for the static Dashboard.
         }
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     </script>
 
