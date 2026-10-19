@@ -1,15 +1,21 @@
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 <%@ Page Language="VB" MasterPageFile="~/Admin/AdminMaster.master" %>
 <%--
     ================================================================
     Admin/ReportsSupport.aspx  —  Reports & Support Page
     Language    : VB (inline runat="server")
 =======
+=======
+>>>>>>> Stashed changes
 <%@ Page Language="C#" MasterPageFile="~/Admin/AdminMaster.master" %>
 <%--
     ================================================================
     Admin/ReportsSupport.aspx  —  Reports & Support Page
     Language    : C# (inline runat="server")
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     Master Page : AdminMaster.master
     Syllabus    : Section 6 — GridView, Label, Controls
@@ -34,6 +40,7 @@
 
     <script runat="server">
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
         ' ── Page_Load ──────────────────────────────────────────
         Protected Sub Page_Load(ByVal sender As Object, ByVal e As EventArgs)
@@ -147,6 +154,8 @@
 
     </script>rn "badge badge-high";
 =======
+=======
+>>>>>>> Stashed changes
         // ── Page_Load ──────────────────────────────────────────────
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -263,6 +272,9 @@
             switch (priority.ToString().ToLower())
             {
                 case "high":   return "badge badge-high";
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
                 case "medium": return "badge badge-medium";
                 case "low":    return "badge badge-low";
