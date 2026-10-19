@@ -127,6 +127,17 @@
     <Content Include="Advertiser\MyCampaigns.aspx" />
     <Content Include="Advertiser\Notifications.aspx" />
     <Content Include="Contact.aspx" />
+    <!-- Admin Pages: C# inline code, no separate code-behind compile entry needed -->
+    <Content Include="Admin\Login.aspx" />
+    <Content Include="Admin\AdminMaster.master" />
+    <Content Include="Admin\Dashboard.aspx" />
+    <Content Include="Admin\ManageUsers.aspx" />
+    <Content Include="Admin\ManageCampaigns.aspx" />
+    <Content Include="Admin\ReportsSupport.aspx" />
+    <!-- Admin CSS -->
+    <Content Include="Content\admin.css" />
+    <!-- Database Script -->
+    <Content Include="Database\InfluishDB.sql" />
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
     <Content Include="Content\bootstrap-grid.rtl.css" />
