@@ -1,5 +1,9 @@
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 <%@ Page Language="VB" MasterPageFile="~/Admin/AdminMaster.master" %>
+=======
+<%@ Page Language="C#" MasterPageFile="~/Admin/AdminMaster.master" %>
+>>>>>>> Stashed changes
 =======
 <%@ Page Language="C#" MasterPageFile="~/Admin/AdminMaster.master" %>
 >>>>>>> Stashed changes
@@ -29,6 +33,7 @@
 
     <script runat="server">
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
         ' ── Page_Load ──────────────────────────────────────────────
         Protected Sub Page_Load(ByVal sender As Object, ByVal e As EventArgs)
@@ -108,6 +113,8 @@
 
 
 =======
+=======
+>>>>>>> Stashed changes
         // ── Page_Load ──────────────────────────────────────────────
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -204,6 +211,9 @@
 
     </script>
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     <%-- ── Page Header ─────────────────────────────────────────── --%>
     <div class="page-header">
