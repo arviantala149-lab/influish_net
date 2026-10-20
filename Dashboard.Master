@@ -1,0 +1,122 @@
+<%@ Master Language="VB" AutoEventWireup="true" CodeBehind="Dashboard.Master.vb" Inherits="Influish_net.DashboardMaster" %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head runat="server">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%: Page.Title %> - Influish</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="~/Content/influish.css" rel="stylesheet" type="text/css" runat="server" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%237C3AED'/><path d='M16 4L19.5 12.5L28 16L19.5 19.5L16 28L12.5 19.5L4 16L12.5 12.5Z' fill='white'/></svg>" />
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server" />
+</head>
+<body>
+    <form runat="server">
+        <asp:ScriptManager runat="server">
+            <Scripts>
+                <asp:ScriptReference Name="jquery" />
+                <asp:ScriptReference Name="WebForms.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebForms.js" />
+                <asp:ScriptReference Name="WebUIValidation.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebUIValidation.js" />
+            </Scripts>
+        </asp:ScriptManager>
+
+        <div class="dashboard-layout">
+
+            <!-- ==============================
+                 SIDEBAR
+                 ============================== -->
+            <aside class="sidebar" id="appSidebar">
+                <div class="sidebar-brand">
+                    <div class="brand-icon" style="width:26px;height:26px;background:var(--purple-primary);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="brand-name">Influish</div>
+                        <div class="brand-sub">Marketplace</div>
+                    </div>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <a href="~/Dashboard.aspx" runat="server" id="sidebarDashboard" class="sidebar-link">
+                        <span class="nav-icon">⊞</span>
+                        Dashboard
+                    </a>
+                    <a href="~/Campaigns.aspx" runat="server" id="sidebarCampaigns" class="sidebar-link">
+                        <span class="nav-icon">📢</span>
+                        Campaigns
+                    </a>
+                    <a href="~/Applications.aspx" runat="server" id="sidebarApplications" class="sidebar-link">
+                        <span class="nav-icon">📋</span>
+                        Applications
+                    </a>
+                    <a href="~/Notifications.aspx" runat="server" id="sidebarNotifications" class="sidebar-link">
+                        <span class="nav-icon">🔔</span>
+                        Notifications
+                    </a>
+                    <a href="~/Profile.aspx" runat="server" id="sidebarProfile" class="sidebar-link">
+                        <span class="nav-icon">👤</span>
+                        Profile
+                    </a>
+                </nav>
+
+                <div class="sidebar-bottom">
+                    <a href="~/ContactSupport.aspx" runat="server" id="sidebarSupport">
+                        <span class="nav-icon">❓</span>
+                        Support
+                    </a>
+                    <a href="~/Default.aspx" runat="server" id="sidebarLogout">
+                        <span class="nav-icon">↪</span>
+                        Logout
+                    </a>
+                </div>
+            </aside>
+
+            <!-- ==============================
+                 TOPBAR
+                 ============================== -->
+            <header class="topbar">
+                <div class="topbar-search">
+                    <span class="search-icon">🔍</span>
+                    <asp:TextBox ID="txtTopSearch" runat="server" placeholder="Search campaigns, brands..." CssClass="form-control" style="border-radius:99px;" />
+                </div>
+                <div class="topbar-actions">
+                    <div class="topbar-icon-btn" title="Notifications">
+                        🔔
+                        <span class="badge-dot"></span>
+                    </div>
+                    <img src="https://i.pravatar.cc/100?img=47" alt="User Avatar" class="topbar-avatar" id="topbarAvatar" />
+                </div>
+            </header>
+
+            <!-- ==============================
+                 MAIN CONTENT
+                 ============================== -->
+            <main class="main-content">
+                <asp:ContentPlaceHolder ID="MainContent" runat="server">
+                </asp:ContentPlaceHolder>
+            </main>
+
+        </div><!-- /dashboard-layout -->
+    </form>
+
+    <script>
+        // Highlight active sidebar link
+        (function () {
+            var path = window.location.pathname.toLowerCase();
+            var links = document.querySelectorAll('.sidebar-link');
+            links.forEach(function (l) {
+                var href = l.getAttribute('href') || '';
+                var page = href.replace('~/', '').replace('.aspx', '').toLowerCase();
+                if (page && path.indexOf(page) > -1) {
+                    l.classList.add('active');
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

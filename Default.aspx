@@ -1,140 +1,122 @@
-<<<<<<< Updated upstream
-<%@ Page Title="Welcome to Influish" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Influish_net._Default" %>
+<%@ Page Title="Connect with Top Influencers in India" Language="VB" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Default.aspx.vb" Inherits="Influish_net._Default" %>
+
+<asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
+    <meta name="description" content="Influish bridges the gap between creative talent and visionary advertisers — India's #1 Creator Marketplace." />
+</asp:Content>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
-    <!-- Hero Banner (Figma Page 2 & Page 4) -->
-    <div class="influish-card p-5 mb-4" style="background: linear-gradient(135deg, #FAF5FF 0%, #FFFFFF 100%); border-color: #EDE9FE;">
-        <div class="row align-items-center g-4">
-            <div class="col-lg-7">
-                <span class="category-tag mb-3" style="background:#EDE9FE; color:#7C3AED; font-weight:600;">
-                    &#9679; India's #1 Creator Marketplace
-                </span>
-                <h1 class="page-title mt-2 mb-3" style="font-size: 34px; line-height: 1.2;">
-                    Connect with Top Influencers & Launch Impactful Campaigns
+
+    <!-- ==============================
+         HERO SECTION
+         ============================== -->
+    <section style="background: #F8F7FF;">
+        <div class="hero-section">
+            <!-- Left: Text -->
+            <div class="hero-left">
+                <div class="hero-badge">
+                    <span class="dot"></span>
+                    India's #1 Creator Marketplace
+                </div>
+                <h1 class="hero-title">
+                    Connect with<br />
+                    <span class="gradient-text">Top Influencers</span><br />
+                    in India
                 </h1>
-                <p class="text-secondary mb-4" style="font-size: 16px; line-height: 1.6;">
-                    Stop guessing. Start growing. Influish bridges the gap between creative talent and visionary advertisers, making collaboration effortless, transparent, and ROI-driven.
+                <p class="hero-desc">
+                    Discover authentic voices to elevate your brand. Influish bridges the gap between creative talent and visionary advertisers, making campaign collaboration effortless and impactful.
                 </p>
-                <div class="d-flex align-items-center gap-3 flex-wrap">
-                    <a href="<%= ResolveUrl("~/Advertiser/Dashboard.aspx") %>" class="btn-influish-primary" style="padding: 12px 28px; font-size: 15px;">
-                        <span>Launch Advertiser Dashboard</span>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                            <polyline points="12 5 19 12 12 19"></polyline>
+                <div class="hero-actions">
+                    <a href="~/Signup.aspx" runat="server" class="btn btn-primary btn-lg" style="display:inline-flex; align-items:center; gap:8px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                         </svg>
+                        Join as Influencer
                     </a>
-                    <a href="<%= ResolveUrl("~/Advertiser/MyCampaigns.aspx") %>" class="btn-influish-secondary" style="padding: 12px 24px; font-size: 15px;">
-                        Explore Campaigns
+                    <a href="~/Signup.aspx" runat="server" class="btn btn-outline btn-lg" style="display:inline-flex; align-items:center; gap:8px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                        </svg>
+                        Join as Advertiser
                     </a>
                 </div>
             </div>
 
-            <div class="col-lg-5 text-center">
-                <div style="background: linear-gradient(135deg, #EDE9FE, #FCE7F3); border-radius: 20px; padding: 40px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.1);">
-                    <div style="font-size: 48px; margin-bottom: 12px;">🚀</div>
-                    <h3 class="fw-bold text-dark mb-2">Advertiser Module</h3>
-                    <p class="text-secondary small mb-3">Everything you need to create campaigns, review applicant influencers, and track performance.</p>
-                    <div class="d-flex justify-content-center gap-3 text-start mt-3">
-                        <div class="p-2 px-3 bg-white rounded-3 shadow-sm">
-                            <div class="fw-bold text-dark">850+</div>
-                            <div class="text-muted" style="font-size:11px;">Verified Creators</div>
-                        </div>
-                        <div class="p-2 px-3 bg-white rounded-3 shadow-sm">
-                            <div class="fw-bold text-dark">400+</div>
-                            <div class="text-muted" style="font-size:11px;">Active Brands</div>
-                        </div>
+            <!-- Right: Hero Image -->
+            <div class="hero-image">
+                <img src="https://images.unsplash.com/photo-1581403341630-a6e0b9d2d257?w=800&q=80&fit=crop&crop=faces"
+                     alt="Indian influencer with shopping bag" />
+            </div>
+        </div>
+    </section>
+
+    <!-- ==============================
+         STATS STRIP
+         ============================== -->
+    <section class="stats-strip">
+        <div class="stats-inner">
+            <div class="stat-item">
+                <div class="stat-num purple">850+</div>
+                <div class="stat-desc">Verified Influencers</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num magenta">400+</div>
+                <div class="stat-desc">Active Advertisers</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num teal">12K+</div>
+                <div class="stat-desc">Campaigns Delivered</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num" style="color:#1A1A2E;">&#8377;50M+</div>
+                <div class="stat-desc">Creator Earnings</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==============================
+         HOW INFLUISH WORKS
+         ============================== -->
+    <section style="background:#fff; padding: 80px 0;">
+        <div class="how-section">
+            <h2 class="section-title">How Influish Works</h2>
+            <p class="section-sub">Streamlined collaboration from discovery to payment. We handle the complexity so you can focus on creating impact.</p>
+
+            <div class="steps-grid">
+                <!-- Step 1 -->
+                <div class="step-item">
+                    <div class="step-icon-wrap" style="background: var(--purple-light);">
+                        <span style="font-size:26px;">🔍</span>
+                        <div class="step-num">1</div>
                     </div>
+                    <h3 class="step-title">Discover &amp; Connect</h3>
+                    <p class="step-desc">Brands search our curated marketplace to find influencers that align perfectly with their target audience and niche.</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="step-item">
+                    <div class="step-icon-wrap" style="background: #FDF2F8;">
+                        <span style="font-size:26px;">🤝</span>
+                        <div class="step-num" style="background: #EC4899;">2</div>
+                    </div>
+                    <h3 class="step-title">Collaborate &amp; Create</h3>
+                    <p class="step-desc">Negotiate terms seamlessly on platform. Creators produce authentic content based on clear campaign briefs.</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="step-item">
+                    <div class="step-icon-wrap" style="background: #E0F2FE;">
+                        <span style="font-size:26px;">💰</span>
+                        <div class="step-num teal-num">3</div>
+                    </div>
+                    <h3 class="step-title">Publish &amp; Earn</h3>
+                    <p class="step-desc">Content goes live, performance is tracked, and secure payments are released automatically upon completion.</p>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Quick Navigation to Module Pages -->
-    <h3 class="card-title mb-3" style="font-size: 18px;">Advertiser Module Screens</h3>
-    <div class="row g-3">
-        <div class="col-md-4">
-            <div class="influish-card p-3 h-100">
-                <h5 class="fw-bold mb-1"><a href="<%= ResolveUrl("~/Advertiser/Dashboard.aspx") %>">1. Dashboard</a></h5>
-                <p class="text-secondary small mb-0">Overview of active campaigns, total applicants, accepted influencers, and recent promotions.</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="influish-card p-3 h-100">
-                <h5 class="fw-bold mb-1"><a href="<%= ResolveUrl("~/Advertiser/CreateCampaign.aspx") %>">2. Create Campaign</a></h5>
-                <p class="text-secondary small mb-0">Campaign details form with server-side validation for category, budget, followers, and age range.</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="influish-card p-3 h-100">
-                <h5 class="fw-bold mb-1"><a href="<%= ResolveUrl("~/Advertiser/MyCampaigns.aspx") %>">3. My Campaigns</a></h5>
-                <p class="text-secondary small mb-0">Browse and filter campaigns by Open/Closed status, view applicant counts, and edit details.</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="influish-card p-3 h-100">
-                <h5 class="fw-bold mb-1"><a href="<%= ResolveUrl("~/Advertiser/CampaignDetails.aspx") %>">4. Applicants List</a></h5>
-                <p class="text-secondary small mb-0">Review influencers who applied, filter by status, sort by followers, and accept or reject candidates.</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="influish-card p-3 h-100">
-                <h5 class="fw-bold mb-1"><a href="<%= ResolveUrl("~/Advertiser/InfluencerProfile.aspx") %>">5. Applicant Review</a></h5>
-                <p class="text-secondary small mb-0">Detailed influencer profile, statistics, bio, application details, and acceptance actions.</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="influish-card p-3 h-100">
-                <h5 class="fw-bold mb-1"><a href="<%= ResolveUrl("~/Advertiser/CompanyProfile.aspx") %>">6. Company Profile</a></h5>
-                <p class="text-secondary small mb-0">Company contact information, industry, website, and account security password change.</p>
-            </div>
-        </div>
-    </div>
 </asp:Content>
-=======
-<%@ Page Language="VB" AutoEventWireup="true" CodeBehind="Default.aspx.vb" Inherits="Influish_net._Default" %>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Influish — Influencer Marketing Platform Admin Panel" />
-    <title>Influish — Influencer Marketing Platform</title>
-
-    <%-- Link to the Admin CSS file for Splash Screen styles --%>
-    <link href="Content/admin.css" rel="stylesheet" />
-</head>
-<body class="splash-body">
-
-    <%-- ── Logo and Brand ────────────────────────────────────── --%>
-    <div class="splash-logo-wrap">
-        <div class="splash-logo-icon">i</div>
-        <div class="splash-brand-text">
-            <h1>Influish</h1>
-            <p>Influencer Admin</p>
-        </div>
-    </div>
-
-    <%-- ── Tagline ─────────────────────────────────────────────── --%>
-    <p class="splash-subtitle">Connecting Brands &amp; Influencers</p>
-
-    <%-- ── Animated Loading Dots ──────────────────────────────── --%>
-    <div class="splash-loader">
-        <span class="splash-dot"></span>
-        <span class="splash-dot"></span>
-        <span class="splash-dot"></span>
-    </div>
-
-    <%-- ── Redirect Text ──────────────────────────────────────── --%>
-    <p class="splash-redirect">Redirecting to Admin Panel...</p>
-
-    <%-- ── JavaScript: Auto-redirect after 3 seconds ─────────── --%>
-    <script type="text/javascript">
-        // Wait 3000 milliseconds (3 seconds), then open Admin Login page
-        setTimeout(function () {
-            window.location.href = 'Admin/Login.aspx';
-        }, 3000);
-    </script>
-
-</body>
-</html>
->>>>>>> Stashed changes
