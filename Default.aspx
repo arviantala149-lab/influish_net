@@ -1,4 +1,4 @@
-<%@ Page Title="Connect with Top Influencers in India" Language="VB" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Default.aspx.vb" Inherits="Influish_net._Default" %>
+<%@ Page Title="Connect with Top Influencers in India" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Influish_net._Default" %>
 
 <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
     <meta name="description" content="Influish bridges the gap between creative talent and visionary advertisers — India's #1 Creator Marketplace." />
@@ -26,7 +26,7 @@
                     Discover authentic voices to elevate your brand. Influish bridges the gap between creative talent and visionary advertisers, making campaign collaboration effortless and impactful.
                 </p>
                 <div class="hero-actions">
-                    <a href="~/Signup.aspx" runat="server" class="btn btn-primary btn-lg" style="display:inline-flex; align-items:center; gap:8px;">
+                    <a href="~/Signup.aspx?role=influencer" runat="server" class="btn btn-primary btn-lg" style="display:inline-flex; align-items:center; gap:8px;">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                             <circle cx="9" cy="7" r="4"></circle>
@@ -35,7 +35,7 @@
                         </svg>
                         Join as Influencer
                     </a>
-                    <a href="~/Signup.aspx" runat="server" class="btn btn-outline btn-lg" style="display:inline-flex; align-items:center; gap:8px;">
+                    <a href="~/Signup.aspx?role=advertiser" runat="server" class="btn btn-outline btn-lg" style="display:inline-flex; align-items:center; gap:8px;">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                             <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>

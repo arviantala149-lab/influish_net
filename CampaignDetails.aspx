@@ -1,10 +1,21 @@
-<%@ Page Title="Campaign Details" Language="VB" MasterPageFile="~/Dashboard.Master" AutoEventWireup="true" CodeBehind="CampaignDetails.aspx.vb" Inherits="Influish_net.CampaignDetails" %>
+<%@ Page Title="Campaign Details" Language="C#" MasterPageFile="~/Dashboard.Master" AutoEventWireup="true" %>
 
 <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
     <meta name="description" content="View campaign details and apply for brand collaborations on Influish." />
 </asp:Content>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
+
+    <script runat="server">
+        protected void btnApply_Click(object sender, EventArgs e)
+        {
+            btnApply.Text = "Applied Successfully ✓";
+            btnApply.Enabled = false;
+            btnApply.CssClass = "btn btn-full btn-lg";
+            btnApply.Style["background"] = "#10B981";
+            btnApply.Style["color"] = "#ffffff";
+        }
+    </script>
 
     <!-- Breadcrumb -->
     <nav class="breadcrumb">

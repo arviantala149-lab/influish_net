@@ -1,4 +1,4 @@
-<%@ Page Title="My Applications" Language="VB" MasterPageFile="~/Dashboard.Master" AutoEventWireup="true" CodeBehind="Applications.aspx.vb" Inherits="Influish_net.Applications" %>
+<%@ Page Title="My Applications" Language="C#" MasterPageFile="~/Dashboard.Master" AutoEventWireup="true" %>
 
 <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
     <meta name="description" content="Track the status of your campaign applications across brands." />

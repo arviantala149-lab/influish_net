@@ -1,5 +1,11 @@
-<%@ Page Title="Notifications" Language="VB" MasterPageFile="~/Dashboard.Master" AutoEventWireup="true" CodeBehind="Notifications.aspx.vb" Inherits="Influish_net.Notifications" %>
+<%@ Page Title="Notifications" Language="C#" MasterPageFile="~/Dashboard.Master" AutoEventWireup="true" %>
 
+<script runat="server">
+    protected void btnMarkAllRead_Click(object sender, EventArgs e)
+    {
+        Response.Redirect("~/Notifications.aspx");
+    }
+</script>
 <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
     <meta name="description" content="Stay updated on your Influish marketplace activity." />
 </asp:Content>

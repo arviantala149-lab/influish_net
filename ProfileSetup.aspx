@@ -1,4 +1,4 @@
-<%@ Page Title="Set Up Profile" Language="VB" AutoEventWireup="true" CodeBehind="ProfileSetup.aspx.vb" Inherits="Influish_net.ProfileSetup" %>
+<%@ Page Title="Set Up Profile" Language="C#" AutoEventWireup="true" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -14,6 +14,15 @@
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" runat="server" />
 </head>
 <body>
+    <script runat="server">
+        protected void btnSave_Click(object sender, EventArgs e)
+        {
+            if (Page.IsValid)
+            {
+                Response.Redirect("~/Dashboard.aspx");
+            }
+        }
+    </script>
     <form runat="server" id="frmProfileSetup">
         <div class="auth-page" style="padding: 40px 24px;">
 

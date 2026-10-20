@@ -1,25 +1,17 @@
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<%@ Page Language="VB" MasterPageFile="~/Admin/AdminMaster.master" %>
-=======
 <%@ Page Language="C#" MasterPageFile="~/Admin/AdminMaster.master" %>
->>>>>>> Stashed changes
-=======
-<%@ Page Language="C#" MasterPageFile="~/Admin/AdminMaster.master" %>
->>>>>>> Stashed changes
 <%--
-    ================================================================
+    =
     Admin/Dashboard.aspx  —  Admin Dashboard
     Language    : C# (inline runat="server")
     Master Page : AdminMaster.master (provides sidebar + topbar)
     Syllabus    : Section 6 — ASP.NET Page, Master Pages, Controls
-    ================================================================
+    =
 
     WHAT THIS PAGE DOES:
     Shows summary statistics and recent platform activity.
     The stats cards are static (hardcoded) as shown in the Figma.
     Session protection is handled by AdminMaster.master Page_Load.
-    ================================================================
+    =
 --%>
 
 <%-- ── Page Title shown in the topbar ──────────────────────────── --%>
@@ -31,28 +23,7 @@
 <asp:Content ContentPlaceHolderID="MainContent" runat="server">
 
     <script runat="server">
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-        ' ── Page_Load ─────────────────────────────────────────────
-        ' Session check is already done in AdminMaster.master.
-        ' Dashboard shows static data from the Figma design.
-        Protected Sub Page_Load(ByVal sender As Object, ByVal e As EventArgs)
-            ' No additional server code needed for the static Dashboard.
-        End Sub
-=======
-=======
->>>>>>> Stashed changes
-        // ── Page_Load ─────────────────────────────────────────────
-        // Session check is already done in AdminMaster.master.
-        // Dashboard shows static data from the Figma design.
-        protected void Page_Load(object sender, EventArgs e)
-        {
-            // No additional server code needed for the static Dashboard.
-        }
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+        protected void Page_Load(object sender, EventArgs e) { }
     </script>
 
     <%-- ── Page Header ──────────────────────────────────────────── --%>

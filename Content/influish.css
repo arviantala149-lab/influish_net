@@ -729,6 +729,37 @@ textarea.form-control { resize: vertical; min-height: 120px; }
     background: radial-gradient(circle, rgba(124,58,237,0.08) 0%, transparent 70%);
     pointer-events: none;
 }
+.auth-role-tabs {
+    display: flex;
+    background: #EDE9FE;
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 22px;
+    gap: 4px;
+}
+.auth-role-tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-radius: 9px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.auth-role-tab:hover {
+    color: var(--purple-primary);
+}
+.auth-role-tab.active {
+    background: #ffffff;
+    color: var(--purple-primary);
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.15);
+}
 .auth-role-badge {
     display: inline-flex;
     align-items: center;

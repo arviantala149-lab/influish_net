@@ -1,10 +1,22 @@
-<%@ Page Title="Contact Support" Language="VB" MasterPageFile="~/Dashboard.Master" AutoEventWireup="true" CodeBehind="ContactSupport.aspx.vb" Inherits="Influish_net.ContactSupport" %>
+<%@ Page Title="Contact Support" Language="C#" MasterPageFile="~/Dashboard.Master" AutoEventWireup="true" %>
 
 <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
     <meta name="description" content="Contact Influish support — we're here to help." />
 </asp:Content>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
+
+    <script runat="server">
+        protected void btnSubmit_Click(object sender, EventArgs e)
+        {
+            if (Page.IsValid)
+            {
+                btnSubmit.Text = "Submitted Successfully ✓";
+                btnSubmit.Enabled = false;
+                txtMessage.Text = "";
+            }
+        }
+    </script>
 
     <div class="page-header">
         <h1>Contact Support</h1>

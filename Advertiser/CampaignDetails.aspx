@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="CampaignDetails.aspx.cs" Inherits="Influish_net.Advertiser.CampaignDetails" MasterPageFile="~/Site.Master" Title="Campaign Applicants" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="CampaignDetails.aspx.cs" Inherits="Influish_net.Advertiser.CampaignDetails" MasterPageFile="~/Advertiser/AdvertiserMaster.master" Title="Campaign Applicants" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <!-- Breadcrumb -->

@@ -1,4 +1,4 @@
-<%@ Page Title="Terms of Service" Language="VB" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="TermsOfService.aspx.vb" Inherits="Influish_net.TermsOfService" %>
+<%@ Page Title="Terms of Service" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" %>
 
 <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
     <meta name="description" content="Read the Influish Terms of Service — user agreement, privacy policy highlights, and account responsibilities." />

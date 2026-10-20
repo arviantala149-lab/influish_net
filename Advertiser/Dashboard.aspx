@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Dashboard.aspx.cs" Inherits="Influish_net.Advertiser.Dashboard" MasterPageFile="~/Site.Master" Title="Advertiser Dashboard" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Dashboard.aspx.cs" Inherits="Influish_net.Advertiser.Dashboard" MasterPageFile="~/Advertiser/AdvertiserMaster.master" Title="Advertiser Dashboard" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <!-- Top Welcome Header & Action -->

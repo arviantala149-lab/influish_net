@@ -1,4 +1,4 @@
-<%@ Page Language="VB" AutoEventWireup="true" CodeBehind="Splash.aspx.vb" Inherits="Influish_net.Splash" %>
+<%@ Page Language="C#" AutoEventWireup="true" %>
 
 <!DOCTYPE html>
 <html lang="en">

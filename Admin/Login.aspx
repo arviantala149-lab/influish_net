@@ -1,4 +1,4 @@
-<%@ Page Language="VB" %>
+<%@ Page Language="C#" %>
 <%--
     ================================================================
     Admin/Login.aspx  —  Admin Login Page
@@ -21,57 +21,36 @@
 </head>
 <body class="login-body">
 
-    <%-- ============================================================
-         C# Server-Side Code (runs on the Web Server, not the browser)
-         ============================================================
-         This <script runat="server"> block is C# code.
-         It executes AFTER the user clicks the Login button.
-         The browser never sees this code — only the HTML result.
-    --%>
     <script runat="server">
 
-        ' ── Demo Credentials (for college practical only) ──────────
-        ' NOTE: In a real application, passwords must be hashed
-        '       and stored securely in the database. Never store
-        '       plain-text passwords in production code.
-        Private Const ADMIN_EMAIL As String = "arviantala18@gmail.com"
-        Private Const ADMIN_PASSWORD As String = "Abc@1234"
+        private const string ADMIN_EMAIL = "arviantala18@gmail.com";
+        private const string ADMIN_PASSWORD = "Abc@1234";
 
-        ' ── Page_Load : Runs every time this page loads ────────────
-        Protected Sub Page_Load(ByVal sender As Object, ByVal e As EventArgs)
-            ' If Admin is already logged in (session exists), go to Dashboard
-            If Session("AdminLoggedIn") IsNot Nothing Then
-                Response.Redirect("~/Admin/Dashboard.aspx")
-            End If
-        End Sub
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            if (Session["AdminLoggedIn"] != null)
+                Response.Redirect("~/Admin/Dashboard.aspx");
+        }
 
-        ' ── btnLogin_Click : Runs when Login button is clicked ─────
-        Protected Sub btnLogin_Click(ByVal sender As Object, ByVal e As EventArgs)
-            ' Read what the user typed in the textboxes
-            Dim email As String = txtEmail.Text.Trim()
-            Dim password As String = txtPassword.Text.Trim()
+        protected void btnLogin_Click(object sender, EventArgs e)
+        {
+            string email = txtEmail.Text.Trim();
+            string password = txtPassword.Text.Trim();
 
-            ' Compare with correct credentials
-            If email = ADMIN_EMAIL AndAlso password = ADMIN_PASSWORD Then
-                ' ── Correct credentials ────────────────────────────
-                ' Store Admin info in Session (server memory)
-                ' Session keeps the Admin logged in across all pages
-                Session("AdminLoggedIn") = True
-                Session("AdminName") = "Arvi Antala"
-                Session("AdminRole") = "System Admin"
-
-                ' Redirect to the Admin Dashboard
-                Response.Redirect("~/Admin/Dashboard.aspx")
-            Else
-                ' ── Wrong credentials ──────────────────────────────
-                ' Show the error panel with a message
-                pnlError.Visible = True
-                lblError.Text = "&#9888; Invalid email or password. Please try again."
-
-                ' Clear the password field so user can retype
-                txtPassword.Text = String.Empty
-            End If
-        End Sub
+            if (email == ADMIN_EMAIL && password == ADMIN_PASSWORD)
+            {
+                Session["AdminLoggedIn"] = true;
+                Session["AdminName"] = "Arvi Antala";
+                Session["AdminRole"] = "System Admin";
+                Response.Redirect("~/Admin/Dashboard.aspx");
+            }
+            else
+            {
+                pnlError.Visible = true;
+                lblError.Text = "&#9888; Invalid email or password. Please try again.";
+                txtPassword.Text = string.Empty;
+            }
+        }
 
     </script>
 

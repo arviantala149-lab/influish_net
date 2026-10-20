@@ -1,4 +1,4 @@
-<%@ Page Title="Dashboard" Language="VB" MasterPageFile="~/Dashboard.Master" AutoEventWireup="true" CodeBehind="Dashboard.aspx.vb" Inherits="Influish_net.Dashboard" %>
+<%@ Page Title="Dashboard" Language="C#" MasterPageFile="~/Dashboard.Master" AutoEventWireup="true" %>
 
 <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
     <meta name="description" content="Influish Influencer Dashboard — overview of your activity, stats and recommended campaigns." />

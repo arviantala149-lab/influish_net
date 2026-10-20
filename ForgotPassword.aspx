@@ -1,4 +1,4 @@
-<%@ Page Title="Forgot Password" Language="VB" AutoEventWireup="true" CodeBehind="ForgotPassword.aspx.vb" Inherits="Influish_net.ForgotPassword" %>
+<%@ Page Title="Forgot Password" Language="C#" AutoEventWireup="true" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -14,6 +14,13 @@
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" runat="server" />
 </head>
 <body>
+<script runat="server">
+    protected void btnSend_Click(object sender, EventArgs e)
+    {
+        // In a real app, send reset email. For demo, show success.
+        Response.Redirect("~/Login.aspx");
+    }
+</script>
     <form runat="server" id="frmForgot">
         <div class="auth-page">
 

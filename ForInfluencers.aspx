@@ -1,4 +1,4 @@
-<%@ Page Title="For Influencers" Language="VB" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="ForInfluencers.aspx.vb" Inherits="Influish_net.ForInfluencers" %>
+<%@ Page Title="For Influencers" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" %>
 
 <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
     <meta name="description" content="Join India's fastest-growing creator marketplace. Connect with premium brands, negotiate seamlessly, and get paid securely — all in one place." />
@@ -26,7 +26,7 @@
                     Join India's fastest-growing creator marketplace. Connect with top-tier advertisers, negotiate seamlessly, and get paid securely — all in one place.
                 </p>
                 <div class="hero-actions">
-                    <a href="~/Signup.aspx" runat="server" class="btn btn-primary btn-lg">Get Started Free</a>
+                    <a href="~/Signup.aspx?role=influencer" runat="server" class="btn btn-primary btn-lg">Get Started Free</a>
                 </div>
             </div>
 

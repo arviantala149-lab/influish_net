@@ -7,8 +7,20 @@ namespace Influish_net
 {
     public partial class SiteMaster : MasterPage
     {
-        public string CompanyDisplayName { get; set; } = "TechNova Solutions";
-        public string CompanyInitials { get; set; } = "TS";
+        private string _companyDisplayName = "TechNova Solutions";
+        private string _companyInitials = "TS";
+
+        public string CompanyDisplayName
+        {
+            get { return _companyDisplayName; }
+            set { _companyDisplayName = value; }
+        }
+
+        public string CompanyInitials
+        {
+            get { return _companyInitials; }
+            set { _companyInitials = value; }
+        }
 
         protected void Page_Load(object sender, EventArgs e)
         {

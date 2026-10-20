@@ -1,4 +1,4 @@
-<%@ Page Title="Campaigns" Language="VB" MasterPageFile="~/Dashboard.Master" AutoEventWireup="true" CodeBehind="Campaigns.aspx.vb" Inherits="Influish_net.Campaigns" %>
+<%@ Page Title="Campaigns" Language="C#" MasterPageFile="~/Dashboard.Master" AutoEventWireup="true" %>
 
 <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
     <meta name="description" content="Browse all available campaigns on the Influish marketplace." />

@@ -1,4 +1,4 @@
-<%@ Master Language="VB" AutoEventWireup="true" CodeBehind="Site.master.vb" Inherits="Influish_net.SiteMaster" %>
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.Master.cs" Inherits="Influish_net.SiteMaster" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -19,9 +19,9 @@
     <form runat="server">
         <asp:ScriptManager runat="server">
             <Scripts>
-                <asp:ScriptReference Name="jquery" />
-                <asp:ScriptReference Name="WebForms.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebForms.js" />
-                <asp:ScriptReference Name="WebUIValidation.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebUIValidation.js" />
+                <asp:ScriptReference Path="~/Scripts/jquery-3.7.0.min.js" />
+                <asp:ScriptReference Path="~/Scripts/WebForms/WebForms.js" />
+                <asp:ScriptReference Path="~/Scripts/WebForms/WebUIValidation.js" />
             </Scripts>
         </asp:ScriptManager>
 

@@ -1,4 +1,4 @@
-<%@ Page Title="For Advertisers" Language="VB" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="ForAdvertisers.aspx.vb" Inherits="Influish_net.ForAdvertisers" %>
+<%@ Page Title="For Advertisers" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" %>
 
 <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
     <meta name="description" content="Find the perfect influencer for your brand campaign on Influish — India's #1 Creator Marketplace." />
@@ -22,7 +22,7 @@
                     Access India's largest curated network of verified creators. Launch, manage, and track campaigns with complete transparency from discovery to payment.
                 </p>
                 <div class="hero-actions">
-                    <a href="~/Signup.aspx" runat="server" class="btn btn-primary btn-lg">Start a Campaign</a>
+                    <a href="~/Signup.aspx?role=advertiser" runat="server" class="btn btn-primary btn-lg">Start a Campaign</a>
                 </div>
             </div>
             <div class="hero-image">

@@ -1,10 +1,22 @@
-<%@ Page Title="Influencer Settings" Language="VB" MasterPageFile="~/Dashboard.Master" AutoEventWireup="true" CodeBehind="Settings.aspx.vb" Inherits="Influish_net.Settings" %>
+<%@ Page Title="Influencer Settings" Language="C#" MasterPageFile="~/Dashboard.Master" AutoEventWireup="true" %>
 
 <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
     <meta name="description" content="Manage your Influish influencer profile and account settings." />
 </asp:Content>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
+
+    <script runat="server">
+        protected void btnSaveBasic_Click(object sender, EventArgs e)
+        {
+            btnSaveBasic.Text = "Saved ✓";
+        }
+
+        protected void btnUpdateSecurity_Click(object sender, EventArgs e)
+        {
+            btnUpdateSecurity.Text = "Updated ✓";
+        }
+    </script>
 
     <div class="page-header">
         <h1>Profile Settings</h1>
