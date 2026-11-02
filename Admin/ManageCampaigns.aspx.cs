@@ -1,78 +1,192 @@
 using System;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Influish_net.Helpers;
 
 namespace Influish_net.Admin
 {
     public partial class ManageCampaigns : Page
     {
+        protected string CurrentFilter
+        {
+            get
+            {
+                object f = ViewState["CurrentFilter"];
+                return f != null ? f.ToString() : "";
+            }
+            set
+            {
+                ViewState["CurrentFilter"] = value;
+            }
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
+            AuthHelper.RequireRole(this, "Admin");
+
             if (!IsPostBack)
             {
+                LoadCategories();
                 LoadCampaigns();
             }
         }
 
-        private void LoadCampaigns()
+        private void LoadCategories()
         {
-            DataTable dt = new DataTable();
-            bool dbSuccess = false;
-
             try
             {
-                var connSetting = ConfigurationManager.ConnectionStrings["InfluishDB"];
-                if (connSetting != null && !string.IsNullOrEmpty(connSetting.ConnectionString) && !connSetting.ConnectionString.Contains("YOUR_SERVER"))
+                DataTable dt = DbHelper.ExecuteDataTable("SELECT CategoryName FROM Categories WHERE IsActive = 1 ORDER BY DisplayOrder, CategoryName");
+                foreach (DataRow row in dt.Rows)
                 {
-                    using (SqlConnection conn = new SqlConnection(connSetting.ConnectionString))
-                    {
-                        string query = "SELECT CampaignID, CampaignName, Advertiser, Category, Budget, Applicants, Status, CreatedDate FROM Campaigns ORDER BY CreatedDate DESC";
-                        SqlDataAdapter da = new SqlDataAdapter(query, conn);
-                        da.Fill(dt);
-                        if (dt.Rows.Count > 0)
-                        {
-                            dbSuccess = true;
-                        }
-                    }
+                    string cat = row["CategoryName"].ToString();
+                    ddlCategoryFilter.Items.Add(new ListItem(cat, cat));
                 }
             }
-            catch (Exception)
+            catch
             {
-                // Fall back gracefully to sample campaigns if DB is unconfigured
             }
-
-            if (!dbSuccess || dt.Rows.Count == 0)
-            {
-                dt = GetSampleCampaigns();
-            }
-
-            gvCampaigns.DataSource = dt;
-            gvCampaigns.DataBind();
-            lblCount.Text = "Showing 1 to " + dt.Rows.Count + " of " + dt.Rows.Count + " campaigns";
         }
 
-        private DataTable GetSampleCampaigns()
+        protected void FilterTab_Click(object sender, EventArgs e)
         {
-            DataTable dt = new DataTable();
-            dt.Columns.Add("CampaignID", typeof(int));
-            dt.Columns.Add("CampaignName", typeof(string));
-            dt.Columns.Add("Advertiser", typeof(string));
-            dt.Columns.Add("Category", typeof(string));
-            dt.Columns.Add("Budget", typeof(decimal));
-            dt.Columns.Add("Applicants", typeof(int));
-            dt.Columns.Add("Status", typeof(string));
-            dt.Columns.Add("CreatedDate", typeof(DateTime));
+            LinkButton btn = (LinkButton)sender;
+            CurrentFilter = btn.CommandArgument;
 
-            dt.Rows.Add(101, "Smart Tech Product Promotion", "TechNova Solutions", "Technology", 45000m, 14, "Active", DateTime.Today.AddDays(-2));
-            dt.Rows.Add(102, "Summer Glow Skincare Campaign", "Aura Beauty Co.", "Fashion & Apparel", 28000m, 22, "Active", DateTime.Today.AddDays(-5));
-            dt.Rows.Add(103, "Organic Cold Brew Launch", "Roast & Co.", "Food & Beverage", 18500m, 8, "Pending", DateTime.Today.AddDays(-1));
-            dt.Rows.Add(104, "Urban Streetwear Autumn Drop", "Stride Streetwear", "Fashion & Apparel", 65000m, 35, "Active", DateTime.Today.AddDays(-12));
-            dt.Rows.Add(105, "Wireless Gaming Headset Buzz", "HyperSound Gear", "Technology", 32000m, 19, "Deactivated", DateTime.Today.AddDays(-20));
+            btnTabAll.CssClass = "filter-tab";
+            btnTabActive.CssClass = "filter-tab";
+            btnTabPending.CssClass = "filter-tab";
+            btnTabDeactivated.CssClass = "filter-tab";
 
-            return dt;
+            if (CurrentFilter.Equals("Active", StringComparison.OrdinalIgnoreCase))
+            {
+                btnTabActive.CssClass = "filter-tab active";
+            }
+            else if (CurrentFilter.Equals("Pending", StringComparison.OrdinalIgnoreCase))
+            {
+                btnTabPending.CssClass = "filter-tab active";
+            }
+            else if (CurrentFilter.Equals("Deactivated", StringComparison.OrdinalIgnoreCase))
+            {
+                btnTabDeactivated.CssClass = "filter-tab active";
+            }
+            else
+            {
+                btnTabAll.CssClass = "filter-tab active";
+            }
+
+            LoadCampaigns();
+        }
+
+        protected void Filter_Changed(object sender, EventArgs e)
+        {
+            LoadCampaigns();
+        }
+
+        private void LoadCampaigns()
+        {
+            try
+            {
+                string query = @"
+                    SELECT c.CampaignID, c.Title AS CampaignName, c.Advertiser, c.Category, c.Budget, 
+                           ISNULL(a.AppCount, 0) AS Applicants, c.Status, c.CreatedDate
+                    FROM Campaigns c
+                    LEFT JOIN (SELECT CampaignID, COUNT(*) AS AppCount FROM Applications GROUP BY CampaignID) a
+                        ON c.CampaignID = a.CampaignID
+                    WHERE 1=1 ";
+
+                var parameters = new System.Collections.Generic.List<SqlParameter>();
+
+                if (!string.IsNullOrEmpty(CurrentFilter))
+                {
+                    if (CurrentFilter == "Active")
+                    {
+                        query += " AND (c.Status = 'Active' OR c.Status = 'Open') ";
+                    }
+                    else
+                    {
+                        query += " AND c.Status = @statusFilter ";
+                        parameters.Add(new SqlParameter("@statusFilter", CurrentFilter));
+                    }
+                }
+
+                string search = txtSearch.Text.Trim();
+                if (!string.IsNullOrEmpty(search))
+                {
+                    query += " AND (c.Title LIKE @search OR c.Advertiser LIKE @search) ";
+                    parameters.Add(new SqlParameter("@search", "%" + search + "%"));
+                }
+
+                string category = ddlCategoryFilter.SelectedValue;
+                if (!string.IsNullOrEmpty(category))
+                {
+                    query += " AND c.Category = @category ";
+                    parameters.Add(new SqlParameter("@category", category));
+                }
+
+                query += " ORDER BY c.CreatedDate DESC, c.CampaignID DESC";
+
+                DataTable dt = DbHelper.ExecuteDataTable(query, parameters.ToArray());
+                gvCampaigns.DataSource = dt;
+                gvCampaigns.DataBind();
+                lblCount.Text = "Showing 1 to " + dt.Rows.Count + " of " + dt.Rows.Count + " campaigns";
+                lblError.Visible = false;
+            }
+            catch (Exception ex)
+            {
+                lblError.Text = "Error loading campaigns: " + Server.HtmlEncode(ex.Message);
+                lblError.Visible = true;
+            }
+        }
+
+        protected void btnToggleCampaign_Command(object sender, CommandEventArgs e)
+        {
+            int campaignId = 0;
+            if (int.TryParse(e.CommandArgument.ToString(), out campaignId))
+            {
+                try
+                {
+                    object statusObj = DbHelper.ExecuteScalar(
+                        "SELECT Status FROM Campaigns WHERE CampaignID = @id",
+                        new SqlParameter("@id", campaignId)
+                    );
+
+                    if (statusObj != null)
+                    {
+                        string currentStatus = statusObj.ToString();
+                        string newStatus = (currentStatus.Equals("Active", StringComparison.OrdinalIgnoreCase) || currentStatus.Equals("Open", StringComparison.OrdinalIgnoreCase))
+                            ? "Deactivated"
+                            : "Active";
+
+                        DbHelper.ExecuteNonQuery(
+                            "UPDATE Campaigns SET Status = @status WHERE CampaignID = @id",
+                            new SqlParameter("@status", newStatus),
+                            new SqlParameter("@id", campaignId)
+                        );
+
+                        // Audit log to AdminLogs
+                        int adminId = Session["UserID"] != null ? Convert.ToInt32(Session["UserID"]) : 0;
+                        DbHelper.ExecuteNonQuery(
+                            @"INSERT INTO AdminLogs(AdminUserID, Action, TargetEntity, TargetID, Details, Timestamp)
+                              VALUES(@adminId, 'Campaign Status Updated', 'Campaigns', @targetId, @details, GETDATE())",
+                            new SqlParameter("@adminId", adminId > 0 ? (object)adminId : DBNull.Value),
+                            new SqlParameter("@targetId", campaignId),
+                            new SqlParameter("@details", string.Format("Campaign ID {0} status changed from {1} to {2}", campaignId, currentStatus, newStatus))
+                        );
+
+                        lblSuccess.Text = string.Format("Campaign ID {0} status updated to <strong>{1}</strong>.", campaignId, newStatus);
+                        pnlSuccess.Visible = true;
+                    }
+
+                    LoadCampaigns();
+                }
+                catch (Exception ex)
+                {
+                    lblError.Text = "Error updating campaign: " + Server.HtmlEncode(ex.Message);
+                    lblError.Visible = true;
+                }
+            }
         }
 
         public string GetStatusBadge(object status)
@@ -80,9 +194,12 @@ namespace Influish_net.Admin
             if (status == null || status == DBNull.Value) return "badge";
             switch (status.ToString().ToLower())
             {
-                case "active": return "badge badge-active";
+                case "active":
+                case "open": return "badge badge-active";
                 case "pending": return "badge badge-pending";
-                case "deactivated": return "badge badge-deactivated";
+                case "deactivated":
+                case "closed":
+                case "ended": return "badge badge-deactivated";
                 default: return "badge";
             }
         }

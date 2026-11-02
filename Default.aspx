@@ -7,7 +7,7 @@
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
 
     <!-- ==============================
-         HERO SECTION
+         HERO SECTION "C:\Users\deval\OneDrive\Desktop\INFLUISH_NET\Dashboard.aspx"
          ============================== -->
     <section style="background: #F8F7FF;">
         <div class="hero-section">
@@ -59,19 +59,19 @@
     <section class="stats-strip">
         <div class="stats-inner">
             <div class="stat-item">
-                <div class="stat-num purple">850+</div>
+                <div class="stat-num purple"><asp:Literal ID="litInfCount" runat="server" Text="850+" /></div>
                 <div class="stat-desc">Verified Influencers</div>
             </div>
             <div class="stat-item">
-                <div class="stat-num magenta">400+</div>
+                <div class="stat-num magenta"><asp:Literal ID="litAdvCount" runat="server" Text="400+" /></div>
                 <div class="stat-desc">Active Advertisers</div>
             </div>
             <div class="stat-item">
-                <div class="stat-num teal">12K+</div>
+                <div class="stat-num teal"><asp:Literal ID="litCampCount" runat="server" Text="12K+" /></div>
                 <div class="stat-desc">Campaigns Delivered</div>
             </div>
             <div class="stat-item">
-                <div class="stat-num" style="color:#1A1A2E;">&#8377;50M+</div>
+                <div class="stat-num" style="color:#1A1A2E;"><asp:Literal ID="litEarnings" runat="server" Text="₹50M+" /></div>
                 <div class="stat-desc">Creator Earnings</div>
             </div>
         </div>

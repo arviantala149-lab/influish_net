@@ -1,14 +1,41 @@
 using System;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Influish_net.Helpers;
 
 namespace Influish_net.Advertiser
 {
     public partial class MyCampaigns : Page
     {
+        private int CurrentCompanyId
+        {
+            get
+            {
+                if (Session["CompanyID"] != null)
+                {
+                    return Convert.ToInt32(Session["CompanyID"]);
+                }
+
+                if (Session["UserID"] != null)
+                {
+                    int userId = Convert.ToInt32(Session["UserID"]);
+                    object cid = DbHelper.ExecuteScalar(
+                        "SELECT CompanyID FROM Companies WHERE UserID = @uid",
+                        new SqlParameter("@uid", userId)
+                    );
+                    if (cid != null && cid != DBNull.Value)
+                    {
+                        int id = Convert.ToInt32(cid);
+                        Session["CompanyID"] = id;
+                        return id;
+                    }
+                }
+                return 0;
+            }
+        }
+
         protected string CurrentFilter
         {
             get
@@ -24,6 +51,8 @@ namespace Influish_net.Advertiser
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            AuthHelper.RequireRole(this, "Advertiser");
+
             if (!IsPostBack)
             {
                 CurrentFilter = "all";
@@ -31,96 +60,52 @@ namespace Influish_net.Advertiser
             }
         }
 
-        private string GetConnectionString()
-        {
-            try
-            {
-                var conn = ConfigurationManager.ConnectionStrings["InfluishConnection"];
-                if (conn != null)
-                {
-                    return conn.ConnectionString;
-                }
-            }
-            catch
-            {
-            }
-            return string.Empty;
-        }
-
         private void LoadCampaigns()
         {
-            DataTable dtResult = new DataTable();
-            bool dbSuccess = false;
+            int cid = CurrentCompanyId;
 
-            try
+            // Load counts for tabs
+            object openCount = DbHelper.ExecuteScalar(
+                "SELECT COUNT(*) FROM Campaigns WHERE CompanyID = @cid AND (Status = 'Open' OR Status = 'Active')",
+                new SqlParameter("@cid", cid)
+            );
+            litOpenCount.Text = openCount != null ? openCount.ToString() : "0";
+
+            object closedCount = DbHelper.ExecuteScalar(
+                "SELECT COUNT(*) FROM Campaigns WHERE CompanyID = @cid AND (Status = 'Closed' OR Status = 'Ended' OR Status = 'Deactivated')",
+                new SqlParameter("@cid", cid)
+            );
+            litClosedCount.Text = closedCount != null ? closedCount.ToString() : "0";
+
+            // Query campaigns based on filter
+            string query = @"
+                SELECT c.CampaignID, c.Title, c.Description, c.Category, c.Budget, c.MinFollowers, c.Status,
+                       ISNULL(a.AppCount, 0) AS ApplicantCount, c.CreatedDate
+                FROM Campaigns c
+                LEFT JOIN (SELECT CampaignID, COUNT(*) AS AppCount FROM Applications GROUP BY CampaignID) a
+                    ON c.CampaignID = a.CampaignID
+                WHERE c.CompanyID = @cid ";
+
+            if (CurrentFilter == "open")
             {
-                string cs = GetConnectionString();
-                if (!string.IsNullOrEmpty(cs) && !cs.Contains("YOUR_SERVER"))
-                {
-                    using (SqlConnection con = new SqlConnection(cs))
-                    {
-                        string query = "SELECT c.CampaignID, c.Title, c.Description, c.Category, c.Budget, c.MinFollowers, c.Status, " +
-                                       "ISNULL(a.AppCount, 0) AS ApplicantCount " +
-                                       "FROM Campaigns c " +
-                                       "LEFT JOIN (SELECT CampaignID, COUNT(*) AS AppCount FROM Applications GROUP BY CampaignID) a " +
-                                       "ON c.CampaignID = a.CampaignID ";
-
-                        if (CurrentFilter == "open")
-                        {
-                            query += " WHERE c.Status='Open' OR c.Status='Active' ";
-                        }
-                        else if (CurrentFilter == "closed")
-                        {
-                            query += " WHERE c.Status='Closed' OR c.Status='Ended' ";
-                        }
-
-                        query += " ORDER BY c.CampaignID DESC";
-
-                        SqlDataAdapter da = new SqlDataAdapter(query, con);
-                        da.Fill(dtResult);
-                        dbSuccess = true;
-
-                        // Count open and closed
-                        SqlCommand cmdOpen = new SqlCommand("SELECT COUNT(*) FROM Campaigns WHERE Status='Open' OR Status='Active'", con);
-                        SqlCommand cmdClosed = new SqlCommand("SELECT COUNT(*) FROM Campaigns WHERE Status='Closed' OR Status='Ended'", con);
-                        con.Open();
-                        litOpenCount.Text = cmdOpen.ExecuteScalar().ToString();
-                        litClosedCount.Text = cmdClosed.ExecuteScalar().ToString();
-                    }
-                }
+                query += " AND (c.Status = 'Open' OR c.Status = 'Active') ";
             }
-            catch (Exception)
+            else if (CurrentFilter == "closed")
             {
+                query += " AND (c.Status = 'Closed' OR c.Status = 'Ended' OR c.Status = 'Deactivated') ";
             }
 
-            if (!dbSuccess || dtResult.Rows.Count == 0)
+            query += " ORDER BY c.CampaignID DESC";
+
+            DataTable dt = DbHelper.ExecuteDataTable(query, new SqlParameter("@cid", cid));
+
+            if (dt.Rows.Count > 0)
             {
-                // Populate Figma sample campaigns
-                DataTable dtAll = GetSampleCampaigns();
-
-                // Set counts
-                litOpenCount.Text = "2";
-                litClosedCount.Text = "1";
-
-                DataView dv = new DataView(dtAll);
-                if (CurrentFilter == "open")
-                {
-                    dv.RowFilter = "Status = 'Open' OR Status = 'Active'";
-                }
-                else if (CurrentFilter == "closed")
-                {
-                    dv.RowFilter = "Status = 'Closed' OR Status = 'Ended'";
-                }
-                dtResult = dv.ToTable();
-            }
-
-            if (dtResult.Rows.Count > 0)
-            {
-                rptCampaigns.DataSource = dtResult;
+                rptCampaigns.DataSource = dt;
                 rptCampaigns.DataBind();
                 rptCampaigns.Visible = true;
                 pnlEmpty.Visible = false;
-                litShowingCount.Text = string.Format("Showing 1 to {0} of {0} campaigns", dtResult.Rows.Count);
+                litShowingCount.Text = string.Format("Showing 1 to {0} of {0} campaigns", dt.Rows.Count);
             }
             else
             {
@@ -128,25 +113,6 @@ namespace Influish_net.Advertiser
                 pnlEmpty.Visible = true;
                 litShowingCount.Text = "Showing 0 campaigns";
             }
-        }
-
-        private DataTable GetSampleCampaigns()
-        {
-            DataTable dt = new DataTable();
-            dt.Columns.Add("CampaignID", typeof(int));
-            dt.Columns.Add("Title", typeof(string));
-            dt.Columns.Add("Description", typeof(string));
-            dt.Columns.Add("Category", typeof(string));
-            dt.Columns.Add("Budget", typeof(decimal));
-            dt.Columns.Add("MinFollowers", typeof(int));
-            dt.Columns.Add("Status", typeof(string));
-            dt.Columns.Add("ApplicantCount", typeof(int));
-
-            dt.Rows.Add(1, "Smart Tech Wireless Earbuds Review", "Looking for tech reviewers to create unboxing and hands-on feature reels for our flagship true wireless stereo earbuds.", "Tech & Gadgets", 75000m, 100000, "Open", 89);
-            dt.Rows.Add(2, "Diwali Festive Wear Collection Promotion", "Seeking fashion & lifestyle influencers to showcase our new festive collection with authentic styling guides and festive lookbooks.", "Fashion & Lifestyle", 150000m, 50000, "Open", 215);
-            dt.Rows.Add(3, "Organic Skincare Routine Launch", "Reels campaign focusing on natural morning skincare routine and cruelty-free benefits.", "Beauty & Wellness", 40000m, 25000, "Closed", 312);
-
-            return dt;
         }
 
         protected void FilterTab_Click(object sender, EventArgs e)
@@ -185,23 +151,25 @@ namespace Influish_net.Advertiser
             {
                 return "open";
             }
-            else if (s == "closed" || s == "ended")
+            else if (s == "closed" || s == "ended" || s == "deactivated")
             {
                 return "closed";
             }
             return "closed";
         }
 
-        public string GetPostedText(object idObj)
+        public string GetPostedText(object dateObj)
         {
-            if (idObj != null)
+            if (dateObj != null && dateObj != DBNull.Value)
             {
-                int id = 0;
-                if (int.TryParse(idObj.ToString(), out id))
+                DateTime d;
+                if (DateTime.TryParse(dateObj.ToString(), out d))
                 {
-                    if (id == 1) return "Posted 2 days ago";
-                    if (id == 2) return "Posted 5 days ago";
-                    if (id == 3) return "Ended Oct 15";
+                    TimeSpan diff = DateTime.Today.Subtract(d.Date);
+                    if (diff.TotalDays == 0) return "Posted today";
+                    if (diff.TotalDays == 1) return "Posted yesterday";
+                    if (diff.TotalDays < 30) return string.Format("Posted {0} days ago", (int)diff.TotalDays);
+                    return "Posted on " + d.ToString("MMM dd, yyyy");
                 }
             }
             return "Active recently";
@@ -271,23 +239,12 @@ namespace Influish_net.Advertiser
             int id;
             if (int.TryParse(lb.CommandArgument, out id))
             {
-                try
-                {
-                    string cs = GetConnectionString();
-                    if (!string.IsNullOrEmpty(cs) && !cs.Contains("YOUR_SERVER"))
-                    {
-                        using (SqlConnection con = new SqlConnection(cs))
-                        {
-                            SqlCommand cmd = new SqlCommand("DELETE FROM Campaigns WHERE CampaignID=@id", con);
-                            cmd.Parameters.AddWithValue("@id", id);
-                            con.Open();
-                            cmd.ExecuteNonQuery();
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                }
+                int cid = CurrentCompanyId;
+                DbHelper.ExecuteNonQuery(
+                    "DELETE FROM Campaigns WHERE CampaignID = @id AND CompanyID = @cid",
+                    new SqlParameter("@id", id),
+                    new SqlParameter("@cid", cid)
+                );
                 LoadCampaigns();
             }
         }

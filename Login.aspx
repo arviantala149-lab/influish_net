@@ -40,6 +40,11 @@
                 <h1 class="auth-title" style="text-align: center;"><asp:Literal ID="litTitle" runat="server" Text="Welcome back" /></h1>
                 <p class="auth-subtitle" style="text-align: center;"><asp:Literal ID="litSubtitle" runat="server" Text="Log in to your Influish account to continue." /></p>
 
+                <asp:Panel ID="pnlError" runat="server" Visible="false"
+                    style="background:#FEE2E2;color:#B91C1C;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px;font-weight:500;border:1px solid #FCA5A5;">
+                    <asp:Label ID="lblError" runat="server" />
+                </asp:Panel>
+
                 <asp:ValidationSummary ID="valSummaryLogin" runat="server"
                     CssClass="validation-summary" DisplayMode="BulletList" HeaderText="Please fix the following:"
                     style="background:#FEE2E2;color:#B91C1C;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px;" />

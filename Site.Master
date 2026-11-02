@@ -49,8 +49,14 @@
 
                 <!-- Actions -->
                 <div class="nav-actions">
-                    <a href="~/Login.aspx" runat="server" class="btn-nav-login">Login</a>
-                    <a href="~/Signup.aspx" runat="server" class="btn-nav-signup">Sign Up</a>
+                    <asp:PlaceHolder ID="phAnonymous" runat="server">
+                        <a href="~/Login.aspx" runat="server" class="btn-nav-login">Login</a>
+                        <a href="~/Signup.aspx" runat="server" class="btn-nav-signup">Sign Up</a>
+                    </asp:PlaceHolder>
+                    <asp:PlaceHolder ID="phLoggedIn" runat="server" Visible="false">
+                        <asp:HyperLink ID="lnkUserDashboard" runat="server" CssClass="btn-nav-login">Dashboard</asp:HyperLink>
+                        <asp:LinkButton ID="lnkNavLogout" runat="server" CssClass="btn-nav-signup" OnClick="lnkNavLogout_Click" CausesValidation="false">Logout</asp:LinkButton>
+                    </asp:PlaceHolder>
                 </div>
             </div>
         </nav>

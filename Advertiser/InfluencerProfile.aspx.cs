@@ -1,8 +1,8 @@
 using System;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.UI;
+using Influish_net.Helpers;
 
 namespace Influish_net.Advertiser
 {
@@ -13,7 +13,7 @@ namespace Influish_net.Advertiser
             get
             {
                 object id = ViewState["InfluencerId"];
-                return id != null ? Convert.ToInt32(id) : 1;
+                return id != null ? Convert.ToInt32(id) : 0;
             }
             set
             {
@@ -39,7 +39,7 @@ namespace Influish_net.Advertiser
             get
             {
                 object cid = ViewState["CampaignId"];
-                return cid != null ? Convert.ToInt32(cid) : 1;
+                return cid != null ? Convert.ToInt32(cid) : 0;
             }
             set
             {
@@ -49,6 +49,8 @@ namespace Influish_net.Advertiser
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            AuthHelper.RequireRole(this, "Advertiser");
+
             if (!IsPostBack)
             {
                 string idStr = Request.QueryString["id"];
@@ -56,10 +58,6 @@ namespace Influish_net.Advertiser
                 if (int.TryParse(idStr, out id))
                 {
                     InfluencerId = id;
-                }
-                else
-                {
-                    InfluencerId = 1;
                 }
 
                 string appIdStr = Request.QueryString["appId"];
@@ -85,97 +83,65 @@ namespace Influish_net.Advertiser
             }
         }
 
-        private string GetConnectionString()
-        {
-            try
-            {
-                var conn = ConfigurationManager.ConnectionStrings["InfluishConnection"];
-                if (conn != null)
-                {
-                    return conn.ConnectionString;
-                }
-            }
-            catch
-            {
-            }
-            return string.Empty;
-        }
-
         private void LoadInfluencer(int id)
         {
-            bool found = false;
-            try
+            string query = @"
+                SELECT i.InfluencerID, i.Name, i.Category, i.FollowerCount, i.Bio, i.SocialLinks, i.City, i.Country,
+                       u.Email, u.Phone
+                FROM Influencers i
+                LEFT JOIN Users u ON i.UserID = u.UserID
+                WHERE i.InfluencerID = @id";
+
+            DataTable dt = DbHelper.ExecuteDataTable(query, new SqlParameter("@id", id));
+
+            if (dt.Rows.Count > 0)
             {
-                string cs = GetConnectionString();
-                if (!string.IsNullOrEmpty(cs) && !cs.Contains("YOUR_SERVER"))
+                DataRow r = dt.Rows[0];
+                string name = r["Name"].ToString();
+                lblName.Text = Server.HtmlEncode(name);
+                litAvatarInitials.Text = GetInitials(name);
+                lblCategory.Text = Server.HtmlEncode(r["Category"] != DBNull.Value ? r["Category"].ToString() : "Content Creator");
+
+                int followersVal = 0;
+                if (int.TryParse(r["FollowerCount"].ToString(), out followersVal))
                 {
-                    using (SqlConnection con = new SqlConnection(cs))
+                    lblFollowers.Text = followersVal.ToString("N0");
+                }
+                else
+                {
+                    lblFollowers.Text = Server.HtmlEncode(r["FollowerCount"].ToString());
+                }
+
+                lblBio.Text = Server.HtmlEncode(r["Bio"] != DBNull.Value ? r["Bio"].ToString() : "Passionate content creator delivering engaging audience experiences.");
+                lblSocial.Text = Server.HtmlEncode(r["SocialLinks"] != DBNull.Value ? r["SocialLinks"].ToString() : "@" + name.ToLower().Replace(" ", ""));
+                lblEmail.Text = Server.HtmlEncode(r["Email"] != DBNull.Value ? r["Email"].ToString() : "creator@influish.com");
+                lblAge.Text = "24"; // Standard college demo demographic
+
+                // Load campaign application details if available
+                if (ApplicationId > 0)
+                {
+                    DataTable dtApp = DbHelper.ExecuteDataTable(
+                        "SELECT c.Title, a.AppliedAt FROM Applications a INNER JOIN Campaigns c ON a.CampaignID = c.CampaignID WHERE a.ApplicationID = @aid",
+                        new SqlParameter("@aid", ApplicationId)
+                    );
+                    if (dtApp.Rows.Count > 0)
                     {
-                        SqlCommand cmd = new SqlCommand("SELECT Name, Category, FollowerCount, Bio, SocialLinks FROM Influencers WHERE InfluencerID=@id", con);
-                        cmd.Parameters.AddWithValue("@id", id);
-                        con.Open();
-                        using (SqlDataReader r = cmd.ExecuteReader())
+                        lblCampaignTitle.Text = Server.HtmlEncode(dtApp.Rows[0]["Title"].ToString());
+                        if (dtApp.Rows[0]["AppliedAt"] != DBNull.Value)
                         {
-                            if (r.Read())
-                            {
-                                string name = r["Name"].ToString();
-                                lblName.Text = name;
-                                litAvatarInitials.Text = GetInitials(name);
-                                lblCategory.Text = r["Category"].ToString();
-
-                                int followersVal = 0;
-                                if (int.TryParse(r["FollowerCount"].ToString(), out followersVal))
-                                {
-                                    lblFollowers.Text = followersVal.ToString("N0");
-                                }
-                                else
-                                {
-                                    lblFollowers.Text = r["FollowerCount"].ToString();
-                                }
-
-                                lblBio.Text = r["Bio"].ToString();
-                                lblSocial.Text = !string.IsNullOrEmpty(r["SocialLinks"].ToString()) ? r["SocialLinks"].ToString() : "@" + name.ToLower().Replace(" ", "");
-                                found = true;
-                            }
-                        }
-
-                        // Load campaign application details if available
-                        if (ApplicationId > 0)
-                        {
-                            SqlCommand cmdApp = new SqlCommand("SELECT c.Title, a.AppliedAt FROM Applications a INNER JOIN Campaigns c ON a.CampaignID=c.CampaignID WHERE a.ApplicationID=@aid", con);
-                            cmdApp.Parameters.AddWithValue("@aid", ApplicationId);
-                            using (SqlDataReader rApp = cmdApp.ExecuteReader())
-                            {
-                                if (rApp.Read())
-                                {
-                                    lblCampaignTitle.Text = rApp["Title"].ToString();
-                                    if (rApp["AppliedAt"] != DBNull.Value)
-                                    {
-                                        lblAppliedDate.Text = Convert.ToDateTime(rApp["AppliedAt"]).ToString("MMM dd, yyyy");
-                                    }
-                                }
-                            }
+                            lblAppliedDate.Text = Convert.ToDateTime(dtApp.Rows[0]["AppliedAt"]).ToString("MMM dd, yyyy");
                         }
                     }
                 }
+                else
+                {
+                    lblCampaignTitle.Text = "Creator Profile";
+                    lblAppliedDate.Text = "N/A";
+                }
             }
-            catch (Exception)
+            else
             {
-            }
-
-            if (!found)
-            {
-                // Populate Figma sample data for Mer Nensi
-                lblName.Text = "Mer Nensi";
-                litAvatarInitials.Text = "MN";
-                lblCategory.Text = "Technology";
-                lblSocial.Text = "@mernensi";
-                lblFollowers.Text = "18,500";
-                lblAge.Text = "21";
-                lblBio.Text = "Tech enthusiast and gadget reviewer. I specialize in breaking down complex smart home products and consumer tech into easy-to-understand content for millennials and Gen Z. Passionate about AI, wearables, and sustainable tech solutions.";
-                lblCampaignTitle.Text = "Smart Tech Product Promotion";
-                lblAppliedDate.Text = "Oct 24, 2024";
-                lblEmail.Text = "contact@mernensi.tech";
+                Response.Redirect("~/Advertiser/Dashboard.aspx");
             }
         }
 
@@ -191,26 +157,50 @@ namespace Influish_net.Advertiser
 
         private void UpdateStatus(string newStatus)
         {
-            try
+            if (ApplicationId > 0)
             {
-                string cs = GetConnectionString();
-                if (!string.IsNullOrEmpty(cs) && !cs.Contains("YOUR_SERVER") && ApplicationId > 0)
+                // Update Application Status
+                DbHelper.ExecuteNonQuery(
+                    "UPDATE Applications SET Status = @s WHERE ApplicationID = @aid",
+                    new SqlParameter("@s", newStatus),
+                    new SqlParameter("@aid", ApplicationId)
+                );
+
+                // Notify Influencer
+                DataTable dt = DbHelper.ExecuteDataTable(@"
+                    SELECT i.UserID, c.Title, c.CampaignID
+                    FROM Applications a
+                    INNER JOIN Influencers i ON a.InfluencerID = i.InfluencerID
+                    INNER JOIN Campaigns c ON a.CampaignID = c.CampaignID
+                    WHERE a.ApplicationID = @aid",
+                    new SqlParameter("@aid", ApplicationId)
+                );
+
+                if (dt.Rows.Count > 0)
                 {
-                    using (SqlConnection con = new SqlConnection(cs))
+                    object userIdObj = dt.Rows[0]["UserID"];
+                    string campaignTitle = dt.Rows[0]["Title"].ToString();
+                    int cid = Convert.ToInt32(dt.Rows[0]["CampaignID"]);
+
+                    if (userIdObj != null && userIdObj != DBNull.Value)
                     {
-                        SqlCommand cmd = new SqlCommand("UPDATE Applications SET Status=@s WHERE ApplicationID=@aid", con);
-                        cmd.Parameters.AddWithValue("@s", newStatus);
-                        cmd.Parameters.AddWithValue("@aid", ApplicationId);
-                        con.Open();
-                        cmd.ExecuteNonQuery();
+                        int infUserId = Convert.ToInt32(userIdObj);
+                        string notificationMsg = newStatus == "Accepted"
+                            ? string.Format("Your application for \"{0}\" was accepted by the brand!", campaignTitle)
+                            : string.Format("Your application for \"{0}\" was not selected.", campaignTitle);
+
+                        DbHelper.ExecuteNonQuery(
+                            @"INSERT INTO Notifications(UserID, Message, RelatedType, RelatedID, IsRead, CreatedAt)
+                              VALUES(@uid, @msg, @type, @cid, 0, GETDATE())",
+                            new SqlParameter("@uid", infUserId),
+                            new SqlParameter("@msg", notificationMsg),
+                            new SqlParameter("@type", newStatus == "Accepted" ? "Acceptance" : "System"),
+                            new SqlParameter("@cid", cid)
+                        );
                     }
                 }
+
                 lblNotice.Text = string.Format("Application successfully marked as <strong>{0}</strong>.", newStatus);
-                pnlNotice.Visible = true;
-            }
-            catch (Exception)
-            {
-                lblNotice.Text = "Status updated: " + newStatus;
                 pnlNotice.Visible = true;
             }
         }

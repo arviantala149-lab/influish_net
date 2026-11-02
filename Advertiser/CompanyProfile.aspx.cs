@@ -1,102 +1,97 @@
 using System;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.UI;
+using Influish_net.Helpers;
 
 namespace Influish_net.Advertiser
 {
     public partial class CompanyProfile : Page
     {
+        private int CurrentCompanyId
+        {
+            get
+            {
+                if (Session["CompanyID"] != null)
+                {
+                    return Convert.ToInt32(Session["CompanyID"]);
+                }
+
+                if (Session["UserID"] != null)
+                {
+                    int userId = Convert.ToInt32(Session["UserID"]);
+                    object cid = DbHelper.ExecuteScalar(
+                        "SELECT CompanyID FROM Companies WHERE UserID = @uid",
+                        new SqlParameter("@uid", userId)
+                    );
+                    if (cid != null && cid != DBNull.Value)
+                    {
+                        int id = Convert.ToInt32(cid);
+                        Session["CompanyID"] = id;
+                        return id;
+                    }
+                }
+                return 0;
+            }
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
+            AuthHelper.RequireRole(this, "Advertiser");
+
             if (!IsPostBack)
             {
                 LoadProfile();
             }
         }
 
-        private string GetConnectionString()
-        {
-            try
-            {
-                var conn = ConfigurationManager.ConnectionStrings["InfluishConnection"];
-                if (conn != null)
-                {
-                    return conn.ConnectionString;
-                }
-            }
-            catch
-            {
-            }
-            return string.Empty;
-        }
-
         private void LoadProfile()
         {
-            bool loaded = false;
-            try
+            int cid = CurrentCompanyId;
+            int uid = Session["UserID"] != null ? Convert.ToInt32(Session["UserID"]) : 0;
+
+            DataTable dt = DbHelper.ExecuteDataTable(
+                "SELECT CompanyID, CompanyName, ContactPerson, Email, Phone, Industry, Website, Description FROM Companies WHERE CompanyID = @cid OR UserID = @uid",
+                new SqlParameter("@cid", cid),
+                new SqlParameter("@uid", uid)
+            );
+
+            if (dt.Rows.Count > 0)
             {
-                string cs = GetConnectionString();
-                if (!string.IsNullOrEmpty(cs) && !cs.Contains("YOUR_SERVER"))
+                DataRow r = dt.Rows[0];
+                string cName = r["CompanyName"].ToString();
+                txtName.Text = cName;
+                lblHeaderCompanyName.Text = Server.HtmlEncode(cName);
+                litCompanyLogoText.Text = GetInitials(cName);
+
+                txtEmail.Text = r["Email"].ToString();
+                txtPhone.Text = r["Phone"].ToString();
+                txtContactPerson.Text = r["ContactPerson"] != DBNull.Value ? r["ContactPerson"].ToString() : "";
+
+                string ind = r["Industry"].ToString();
+                if (ddlIndustry.Items.FindByValue(ind) != null)
                 {
-                    using (SqlConnection con = new SqlConnection(cs))
-                    {
-                        SqlCommand cmd = new SqlCommand("SELECT TOP 1 CompanyID, CompanyName, Email, Phone, Industry, Website, Description FROM Companies", con);
-                        con.Open();
-                        using (SqlDataReader r = cmd.ExecuteReader())
-                        {
-                            if (r.Read())
-                            {
-                                string cName = r["CompanyName"].ToString();
-                                txtName.Text = cName;
-                                lblHeaderCompanyName.Text = cName;
-                                litCompanyLogoText.Text = GetInitials(cName);
-
-                                txtEmail.Text = r["Email"].ToString();
-                                txtPhone.Text = r["Phone"].ToString();
-
-                                string ind = r["Industry"].ToString();
-                                if (ddlIndustry.Items.FindByValue(ind) != null)
-                                {
-                                    ddlIndustry.SelectedValue = ind;
-                                }
-                                else if (ddlIndustry.Items.FindByText(ind) != null)
-                                {
-                                    ddlIndustry.Items.FindByText(ind).Selected = true;
-                                }
-                                lblHeaderIndustry.Text = !string.IsNullOrEmpty(ind) ? ind : "Technology";
-
-                                string web = r["Website"].ToString();
-                                txtWebsite.Text = web;
-                                lblHeaderWebsite.Text = !string.IsNullOrEmpty(web) ? web.Replace("https://", "").Replace("http://", "") : "technova.com";
-
-                                txtDesc.Text = r["Description"].ToString();
-                                txtContactPerson.Text = "Sarah Jenkins";
-                                loaded = true;
-                            }
-                        }
-                    }
+                    ddlIndustry.SelectedValue = ind;
                 }
-            }
-            catch (Exception)
-            {
-            }
+                else if (ddlIndustry.Items.FindByText(ind) != null)
+                {
+                    ddlIndustry.Items.FindByText(ind).Selected = true;
+                }
+                lblHeaderIndustry.Text = !string.IsNullOrEmpty(ind) ? Server.HtmlEncode(ind) : "Technology";
 
-            if (!loaded)
+                string web = r["Website"].ToString();
+                txtWebsite.Text = web;
+                lblHeaderWebsite.Text = !string.IsNullOrEmpty(web) ? Server.HtmlEncode(web.Replace("https://", "").Replace("http://", "")) : "brand.com";
+
+                txtDesc.Text = r["Description"].ToString();
+            }
+            else
             {
-                // Default Figma reference values for TechNova Solutions
-                txtName.Text = "TechNova Solutions";
-                lblHeaderCompanyName.Text = "TechNova Solutions";
-                litCompanyLogoText.Text = "TN";
-                txtEmail.Text = "sarah.j@technova.com";
-                txtPhone.Text = "+1 (555) 123-4567";
-                ddlIndustry.SelectedValue = "Technology";
-                lblHeaderIndustry.Text = "Technology";
-                txtWebsite.Text = "https://technova.com";
-                lblHeaderWebsite.Text = "technova.com";
-                txtDesc.Text = "TechNova Solutions is a leading provider of enterprise software solutions, specializing in cloud infrastructure and data analytics. We help brands accelerate their digital transformation.";
-                txtContactPerson.Text = "Sarah Jenkins";
+                // Fallback to user session details
+                string userName = Session["User"] != null ? Session["User"].ToString() : "Brand Partner";
+                txtName.Text = userName;
+                lblHeaderCompanyName.Text = Server.HtmlEncode(userName);
+                litCompanyLogoText.Text = GetInitials(userName);
             }
         }
 
@@ -114,49 +109,75 @@ namespace Influish_net.Advertiser
             string industry = ddlIndustry.SelectedValue;
             string website = txtWebsite.Text.Trim();
             string desc = txtDesc.Text.Trim();
+            string contactPerson = txtContactPerson.Text.Trim();
+
+            int cid = CurrentCompanyId;
+            int uid = Session["UserID"] != null ? Convert.ToInt32(Session["UserID"]) : 0;
 
             try
             {
-                string cs = GetConnectionString();
-                if (!string.IsNullOrEmpty(cs) && !cs.Contains("YOUR_SERVER"))
+                if (cid > 0)
                 {
-                    using (SqlConnection con = new SqlConnection(cs))
+                    string updateQuery = @"
+                        UPDATE Companies 
+                        SET CompanyName = @name, ContactPerson = @cp, Email = @email, Phone = @phone, 
+                            Industry = @ind, Website = @web, Description = @desc 
+                        WHERE CompanyID = @id";
+
+                    DbHelper.ExecuteNonQuery(
+                        updateQuery,
+                        new SqlParameter("@name", name),
+                        new SqlParameter("@cp", contactPerson),
+                        new SqlParameter("@email", email),
+                        new SqlParameter("@phone", phone),
+                        new SqlParameter("@ind", industry),
+                        new SqlParameter("@web", website),
+                        new SqlParameter("@desc", desc),
+                        new SqlParameter("@id", cid)
+                    );
+                }
+                else if (uid > 0)
+                {
+                    string insertQuery = @"
+                        INSERT INTO Companies(UserID, CompanyName, ContactPerson, Email, Phone, Industry, Website, Description, CreatedAt)
+                        VALUES(@uid, @name, @cp, @email, @phone, @ind, @web, @desc, GETDATE());
+                        SELECT SCOPE_IDENTITY();";
+
+                    object newCid = DbHelper.ExecuteScalar(
+                        insertQuery,
+                        new SqlParameter("@uid", uid),
+                        new SqlParameter("@name", name),
+                        new SqlParameter("@cp", contactPerson),
+                        new SqlParameter("@email", email),
+                        new SqlParameter("@phone", phone),
+                        new SqlParameter("@ind", industry),
+                        new SqlParameter("@web", website),
+                        new SqlParameter("@desc", desc)
+                    );
+                    if (newCid != null && newCid != DBNull.Value)
                     {
-                        SqlCommand cmdCheck = new SqlCommand("SELECT TOP 1 CompanyID FROM Companies", con);
-                        con.Open();
-                        object existing = cmdCheck.ExecuteScalar();
-                        if (existing == null)
-                        {
-                            SqlCommand cmdIns = new SqlCommand("INSERT INTO Companies(CompanyName, Email, Phone, Industry, Website, Description) VALUES(@name,@email,@phone,@ind,@web,@desc)", con);
-                            cmdIns.Parameters.AddWithValue("@name", name);
-                            cmdIns.Parameters.AddWithValue("@email", email);
-                            cmdIns.Parameters.AddWithValue("@phone", phone);
-                            cmdIns.Parameters.AddWithValue("@ind", industry);
-                            cmdIns.Parameters.AddWithValue("@web", website);
-                            cmdIns.Parameters.AddWithValue("@desc", desc);
-                            cmdIns.ExecuteNonQuery();
-                        }
-                        else
-                        {
-                            SqlCommand cmdUp = new SqlCommand("UPDATE Companies SET CompanyName=@name, Email=@email, Phone=@phone, Industry=@ind, Website=@web, Description=@desc WHERE CompanyID=@id", con);
-                            cmdUp.Parameters.AddWithValue("@name", name);
-                            cmdUp.Parameters.AddWithValue("@email", email);
-                            cmdUp.Parameters.AddWithValue("@phone", phone);
-                            cmdUp.Parameters.AddWithValue("@ind", industry);
-                            cmdUp.Parameters.AddWithValue("@web", website);
-                            cmdUp.Parameters.AddWithValue("@desc", desc);
-                            cmdUp.Parameters.AddWithValue("@id", Convert.ToInt32(existing));
-                            cmdUp.ExecuteNonQuery();
-                        }
+                        Session["CompanyID"] = Convert.ToInt32(newCid);
                     }
                 }
 
-                lblHeaderCompanyName.Text = name;
-                lblHeaderIndustry.Text = industry;
-                lblHeaderWebsite.Text = website.Replace("https://", "").Replace("http://", "");
+                // Update Users table name & phone
+                if (uid > 0)
+                {
+                    DbHelper.ExecuteNonQuery(
+                        "UPDATE Users SET FullName = @name, Phone = @phone WHERE UserID = @uid",
+                        new SqlParameter("@name", name),
+                        new SqlParameter("@phone", phone),
+                        new SqlParameter("@uid", uid)
+                    );
+                    Session["User"] = name;
+                }
+
+                lblHeaderCompanyName.Text = Server.HtmlEncode(name);
+                lblHeaderIndustry.Text = Server.HtmlEncode(industry);
+                lblHeaderWebsite.Text = Server.HtmlEncode(website.Replace("https://", "").Replace("http://", ""));
                 litCompanyLogoText.Text = GetInitials(name);
 
-                lblStatus.Text = "Company profile details successfully saved!";
+                lblStatus.Text = "Company profile details successfully saved to database!";
                 pnlStatus.Visible = true;
             }
             catch (Exception ex)
@@ -174,7 +195,40 @@ namespace Influish_net.Advertiser
                 return;
             }
 
-            lblSecurityStatus.Text = "Security settings updated successfully.";
+            int uid = Session["UserID"] != null ? Convert.ToInt32(Session["UserID"]) : 0;
+            if (uid == 0)
+            {
+                lblSecurityStatus.Text = "Session expired. Please log in again.";
+                pnlSecurityStatus.Visible = true;
+                return;
+            }
+
+            string currentPass = txtCurrentPassword.Text.Trim();
+            string newPass = txtNewPassword.Text.Trim();
+
+            // Verify current password
+            object hashObj = DbHelper.ExecuteScalar(
+                "SELECT PasswordHash FROM Users WHERE UserID = @uid",
+                new SqlParameter("@uid", uid)
+            );
+
+            string currentHash = hashObj != null ? hashObj.ToString() : "";
+            if (!AuthHelper.VerifyPassword(currentPass, currentHash))
+            {
+                lblSecurityStatus.Text = "Current password is incorrect.";
+                pnlSecurityStatus.Visible = true;
+                return;
+            }
+
+            // Update to new hashed password
+            string newHash = AuthHelper.HashPassword(newPass);
+            DbHelper.ExecuteNonQuery(
+                "UPDATE Users SET PasswordHash = @hash WHERE UserID = @uid",
+                new SqlParameter("@hash", newHash),
+                new SqlParameter("@uid", uid)
+            );
+
+            lblSecurityStatus.Text = "Password successfully changed!";
             pnlSecurityStatus.Visible = true;
             txtCurrentPassword.Text = "";
             txtNewPassword.Text = "";

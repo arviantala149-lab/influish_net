@@ -1,8 +1,8 @@
 using System;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.UI;
+using Influish_net.Helpers;
 
 namespace Influish_net.Advertiser
 {
@@ -10,57 +10,25 @@ namespace Influish_net.Advertiser
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            AuthHelper.RequireRole(this, "Advertiser");
+
             if (!IsPostBack)
             {
                 LoadNotifications();
             }
         }
 
-        private string GetConnectionString()
-        {
-            try
-            {
-                var conn = ConfigurationManager.ConnectionStrings["InfluishConnection"];
-                if (conn != null)
-                {
-                    return conn.ConnectionString;
-                }
-            }
-            catch
-            {
-            }
-            return string.Empty;
-        }
-
         private void LoadNotifications()
         {
-            DataTable dtNotes = new DataTable();
-            bool loadedFromDb = false;
+            int userId = Session["UserID"] != null ? Convert.ToInt32(Session["UserID"]) : 0;
 
-            try
-            {
-                string cs = GetConnectionString();
-                if (!string.IsNullOrEmpty(cs) && !cs.Contains("YOUR_SERVER"))
-                {
-                    using (SqlConnection con = new SqlConnection(cs))
-                    {
-                        SqlDataAdapter da = new SqlDataAdapter("SELECT NotificationID, Message, CreatedAt, RelatedType, RelatedID FROM Notifications ORDER BY CreatedAt DESC", con);
-                        da.Fill(dtNotes);
-                        if (dtNotes.Rows.Count > 0)
-                        {
-                            loadedFromDb = true;
-                        }
-                    }
-                }
-            }
-            catch (Exception)
-            {
-            }
+            string query = @"
+                SELECT NotificationID, Message, CreatedAt, RelatedType, RelatedID, IsRead 
+                FROM Notifications 
+                WHERE UserID = @uid 
+                ORDER BY CreatedAt DESC";
 
-            if (!loadedFromDb)
-            {
-                dtNotes = GetSampleNotifications();
-            }
+            DataTable dtNotes = DbHelper.ExecuteDataTable(query, new SqlParameter("@uid", userId));
 
             if (dtNotes.Rows.Count > 0)
             {
@@ -76,27 +44,18 @@ namespace Influish_net.Advertiser
             }
         }
 
-        private DataTable GetSampleNotifications()
-        {
-            DataTable dt = new DataTable();
-            dt.Columns.Add("NotificationID", typeof(int));
-            dt.Columns.Add("Message", typeof(string));
-            dt.Columns.Add("CreatedAt", typeof(DateTime));
-            dt.Columns.Add("RelatedType", typeof(string));
-            dt.Columns.Add("RelatedID", typeof(int));
-
-            dt.Rows.Add(1, "Nike accepted your application for the \"Summer Activewear 2024\" campaign.", DateTime.Now.AddHours(-2), "Acceptance", 1);
-            dt.Rows.Add(2, "Alex Fitness applied to your \"Pre-workout Supplement Launch\" campaign.", DateTime.Now.AddHours(-5), "Applicant", 104);
-            dt.Rows.Add(3, "Your campaign \"Tech Gadget Review Q3\" is now live and visible to influencers.", DateTime.Now.AddDays(-1).AddHours(2), "CampaignLive", 1);
-            dt.Rows.Add(4, "Your account balance is running low (₹1,500 remaining). Please top up to keep campaigns active.", DateTime.Now.AddDays(-1).AddHours(-2), "Billing", 0);
-            dt.Rows.Add(5, "Influish platform update: New analytics features are now available in your dashboard.", DateTime.Now.AddDays(-5), "System", 0);
-
-            return dt;
-        }
-
         protected void btnMarkAllRead_Click(object sender, EventArgs e)
         {
+            int userId = Session["UserID"] != null ? Convert.ToInt32(Session["UserID"]) : 0;
+            if (userId > 0)
+            {
+                DbHelper.ExecuteNonQuery(
+                    "UPDATE Notifications SET IsRead = 1 WHERE UserID = @uid",
+                    new SqlParameter("@uid", userId)
+                );
+            }
             pnlNotice.Visible = true;
+            LoadNotifications();
         }
 
         public string GetIconBackground(object typeObj)
@@ -160,17 +119,13 @@ namespace Influish_net.Advertiser
             string t = typeObj.ToString().ToLower();
             string id = idObj != null ? idObj.ToString() : "1";
 
-            if (t == "acceptance")
+            if (t == "acceptance" || t == "campaignlive")
             {
                 return string.Format("<div class='mt-2'><a href='CampaignDetails.aspx?id={0}' class='btn btn-sm btn-primary py-1 px-3' style='background:#7C3AED; border-color:#7C3AED; border-radius:6px; font-size:12px; font-weight:600;'>View Campaign</a></div>", id);
             }
             else if (t == "applicant")
             {
                 return string.Format("<div class='mt-2'><a href='InfluencerProfile.aspx?id={0}' class='btn btn-sm btn-outline-secondary py-1 px-3' style='border-radius:6px; font-size:12px; font-weight:600;'>Review Profile</a></div>", id);
-            }
-            else if (t == "billing")
-            {
-                return "<div class='mt-2'><a href='#' class='btn btn-sm btn-outline-danger py-1 px-3' style='border-radius:6px; font-size:12px; font-weight:600;'>Add Funds</a></div>";
             }
             return "";
         }

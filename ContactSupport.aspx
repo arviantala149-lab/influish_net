@@ -1,4 +1,4 @@
-<%@ Page Title="Contact Support" Language="C#" MasterPageFile="~/Dashboard.Master" AutoEventWireup="true" %>
+<%@ Page Title="Contact Support" Language="C#" MasterPageFile="~/Dashboard.Master" AutoEventWireup="true" CodeBehind="ContactSupport.aspx.cs" Inherits="Influish_net.ContactSupport" %>
 
 <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
     <meta name="description" content="Contact Influish support — we're here to help." />
@@ -6,27 +6,20 @@
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
 
-    <script runat="server">
-        protected void btnSubmit_Click(object sender, EventArgs e)
-        {
-            if (Page.IsValid)
-            {
-                btnSubmit.Text = "Submitted Successfully ✓";
-                btnSubmit.Enabled = false;
-                txtMessage.Text = "";
-            }
-        }
-    </script>
-
     <div class="page-header">
         <h1>Contact Support</h1>
-        <p>We're here to help. Send us a message and we'll get back to you soon.</p>
+        <p>We're here to help. Send us a message and our administration team will assist you.</p>
     </div>
 
     <div class="card card-shadow" style="max-width: 760px;">
 
-        <asp:ValidationSummary ID="ValidationSummary1" runat="server" DisplayMode="BulletList"
+        <asp:ValidationSummary ID="valSummary" runat="server" DisplayMode="BulletList"
             style="background:#FEE2E2;color:#B91C1C;padding:12px;border-radius:8px;margin-bottom:20px;font-size:13px;" />
+
+        <asp:Panel ID="pnlError" runat="server" Visible="false"
+            style="background:#FEE2E2;color:#B91C1C;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px;font-weight:500;border:1px solid #FCA5A5;">
+            <asp:Label ID="lblError" runat="server" />
+        </asp:Panel>
 
         <!-- Subject -->
         <div class="form-group">
@@ -41,7 +34,7 @@
             </asp:DropDownList>
             <asp:RequiredFieldValidator ID="rfvSubject" runat="server"
                 ControlToValidate="ddlSubject" InitialValue=""
-                ErrorMessage="Please select a subject." Display="None" />
+                ErrorMessage="Please select a subject." Display="Dynamic" ForeColor="#DC2626" Font-Size="12px" />
         </div>
 
         <!-- Message -->
@@ -50,7 +43,7 @@
             <asp:TextBox ID="txtMessage" runat="server" TextMode="MultiLine" Rows="6"
                 placeholder="Describe your issue or question in detail..." CssClass="form-control" />
             <asp:RequiredFieldValidator ID="rfvMessage" runat="server"
-                ControlToValidate="txtMessage" ErrorMessage="Please enter a message." Display="None" />
+                ControlToValidate="txtMessage" ErrorMessage="Please enter a message." Display="Dynamic" ForeColor="#DC2626" Font-Size="12px" />
         </div>
 
         <!-- Attachments -->
@@ -79,13 +72,12 @@
         <asp:Panel ID="pnlSuccess" runat="server" Visible="false"
             style="margin-top:20px; background:#DCFCE7; border-radius:8px; padding:16px; display:flex; align-items:center; gap:12px; color:#15803D; font-size:14px; font-weight:500;">
             <span style="font-size:20px;">✅</span>
-            Your support request has been submitted! We'll get back to you within 24 hours.
+            Your support request has been submitted to administration (Ticket #<asp:Literal ID="litTicketId" runat="server" />). We'll get back to you shortly.
         </asp:Panel>
 
     </div>
 
     <script>
-        // Drag and drop visual
         var dz = document.getElementById('dropZone');
         if (dz) {
             dz.addEventListener('dragover', function (e) { e.preventDefault(); dz.style.borderColor = 'var(--purple-primary)'; dz.style.background = 'var(--purple-light)'; });

@@ -2,6 +2,7 @@ using System;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.Web.UI;
+using Influish_net.Helpers;
 
 namespace Influish_net
 {
@@ -27,34 +28,49 @@ namespace Influish_net
             if (!IsPostBack)
             {
                 LoadCompanyInfo();
+                CheckUserLoginState();
             }
+        }
+
+        private void CheckUserLoginState()
+        {
+            bool isLoggedIn = AuthHelper.CheckAndRestoreSession(Context);
+            if (isLoggedIn && Session["Role"] != null)
+            {
+                phAnonymous.Visible = false;
+                phLoggedIn.Visible = true;
+                string role = Session["Role"].ToString();
+                lnkUserDashboard.NavigateUrl = AuthHelper.GetRoleDashboardUrl(role);
+                lnkUserDashboard.Text = role + " Dashboard";
+            }
+            else
+            {
+                phAnonymous.Visible = true;
+                phLoggedIn.Visible = false;
+            }
+        }
+
+        protected void lnkNavLogout_Click(object sender, EventArgs e)
+        {
+            AuthHelper.Logout(Context);
+            Response.Redirect("~/Login.aspx");
         }
 
         private void LoadCompanyInfo()
         {
             try
             {
-                var connSetting = ConfigurationManager.ConnectionStrings["InfluishConnection"];
-                if (connSetting != null && !string.IsNullOrEmpty(connSetting.ConnectionString) && !connSetting.ConnectionString.Contains("YOUR_SERVER"))
+                object cName = DbHelper.ExecuteScalar("SELECT TOP 1 CompanyName FROM Companies");
+                if (cName != null && !string.IsNullOrWhiteSpace(cName.ToString()))
                 {
-                    using (SqlConnection con = new SqlConnection(connSetting.ConnectionString))
-                    {
-                        SqlCommand cmd = new SqlCommand("SELECT TOP 1 CompanyName FROM Companies", con);
-                        con.Open();
-                        object result = cmd.ExecuteScalar();
-                        if (result != null && !string.IsNullOrWhiteSpace(result.ToString()))
-                        {
-                            CompanyDisplayName = result.ToString().Trim();
-                        }
-                    }
+                    CompanyDisplayName = cName.ToString().Trim();
                 }
             }
-            catch (Exception)
+            catch
             {
-                // Keep default TechNova Solutions gracefully if database is unconfigured
+                CompanyDisplayName = "TechNova Solutions";
             }
 
-            // Generate initials
             try
             {
                 if (!string.IsNullOrEmpty(CompanyDisplayName))

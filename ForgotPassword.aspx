@@ -1,4 +1,4 @@
-<%@ Page Title="Forgot Password" Language="C#" AutoEventWireup="true" %>
+<%@ Page Title="Forgot Password" Language="C#" AutoEventWireup="true" CodeBehind="ForgotPassword.aspx.cs" Inherits="Influish_net.ForgotPassword" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -14,23 +14,18 @@
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" runat="server" />
 </head>
 <body>
-<script runat="server">
-    protected void btnSend_Click(object sender, EventArgs e)
-    {
-        // In a real app, send reset email. For demo, show success.
-        Response.Redirect("~/Login.aspx");
-    }
-</script>
     <form runat="server" id="frmForgot">
         <div class="auth-page">
 
             <div class="auth-logo">
-                <div class="brand-icon" style="width:28px;height:28px;background:var(--purple-primary);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/>
-                    </svg>
-                </div>
-                Influish
+                <a href="Default.aspx" style="text-decoration:none; color:inherit; display:flex; align-items:center; gap:8px;">
+                    <div class="brand-icon" style="width:28px;height:28px;background:var(--purple-primary);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/>
+                        </svg>
+                    </div>
+                    Influish
+                </a>
             </div>
 
             <div class="auth-card">
@@ -38,6 +33,11 @@
                 <asp:Panel ID="pnlForm" runat="server">
                     <h1 class="auth-title">Forgot your password?</h1>
                     <p class="auth-subtitle">Enter your email address and we'll send you a link to reset your password.</p>
+
+                    <asp:Panel ID="pnlError" runat="server" Visible="false"
+                        style="background:#FEE2E2;color:#B91C1C;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px;font-weight:500;border:1px solid #FCA5A5;">
+                        <asp:Label ID="lblError" runat="server" />
+                    </asp:Panel>
 
                     <div class="form-group">
                         <label for="txtEmail">Email Address</label>
@@ -60,7 +60,7 @@
                     style="text-align:center; padding: 20px 0;">
                     <div style="width:56px;height:56px;background:#DCFCE7;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 14px;">✅</div>
                     <h2 style="font-size:18px;font-weight:700;color:var(--text-heading);margin-bottom:8px;">Check your inbox!</h2>
-                    <p style="font-size:14px;color:var(--text-muted);">We've sent a password reset link to your email address.</p>
+                    <p style="font-size:14px;color:var(--text-muted);margin-bottom:16px;">We've verified your account and sent a password reset link to your email address.</p>
                 </asp:Panel>
 
                 <div class="auth-footer-link">

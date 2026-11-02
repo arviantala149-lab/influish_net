@@ -1,20 +1,47 @@
 using System;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Influish_net.Helpers;
 
 namespace Influish_net.Advertiser
 {
     public partial class CampaignDetails : Page
     {
+        private int CurrentCompanyId
+        {
+            get
+            {
+                if (Session["CompanyID"] != null)
+                {
+                    return Convert.ToInt32(Session["CompanyID"]);
+                }
+
+                if (Session["UserID"] != null)
+                {
+                    int userId = Convert.ToInt32(Session["UserID"]);
+                    object cid = DbHelper.ExecuteScalar(
+                        "SELECT CompanyID FROM Companies WHERE UserID = @uid",
+                        new SqlParameter("@uid", userId)
+                    );
+                    if (cid != null && cid != DBNull.Value)
+                    {
+                        int id = Convert.ToInt32(cid);
+                        Session["CompanyID"] = id;
+                        return id;
+                    }
+                }
+                return 0;
+            }
+        }
+
         protected int CurrentCampaignId
         {
             get
             {
                 object cid = ViewState["CampaignId"];
-                return cid != null ? Convert.ToInt32(cid) : 1;
+                return cid != null ? Convert.ToInt32(cid) : 0;
             }
             set
             {
@@ -24,6 +51,8 @@ namespace Influish_net.Advertiser
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            AuthHelper.RequireRole(this, "Advertiser");
+
             if (!IsPostBack)
             {
                 string idStr = Request.QueryString["id"];
@@ -34,7 +63,8 @@ namespace Influish_net.Advertiser
                 }
                 else
                 {
-                    CurrentCampaignId = 1;
+                    Response.Redirect("~/Advertiser/MyCampaigns.aspx");
+                    return;
                 }
 
                 LoadCampaign(CurrentCampaignId);
@@ -42,106 +72,49 @@ namespace Influish_net.Advertiser
             }
         }
 
-        private string GetConnectionString()
-        {
-            try
-            {
-                var conn = ConfigurationManager.ConnectionStrings["InfluishConnection"];
-                if (conn != null)
-                {
-                    return conn.ConnectionString;
-                }
-            }
-            catch
-            {
-            }
-            return string.Empty;
-        }
-
         private void LoadCampaign(int id)
         {
-            bool loaded = false;
-            try
-            {
-                string cs = GetConnectionString();
-                if (!string.IsNullOrEmpty(cs) && !cs.Contains("YOUR_SERVER"))
-                {
-                    using (SqlConnection con = new SqlConnection(cs))
-                    {
-                        SqlCommand cmd = new SqlCommand("SELECT Title, Description, Category, Budget FROM Campaigns WHERE CampaignID=@id", con);
-                        cmd.Parameters.AddWithValue("@id", id);
-                        con.Open();
-                        using (SqlDataReader r = cmd.ExecuteReader())
-                        {
-                            if (r.Read())
-                            {
-                                string title = r["Title"].ToString();
-                                lblTitle.Text = title;
-                                litBreadcrumbTitle.Text = title;
-                                lblDescription.Text = r["Description"].ToString();
-                                lblCategory.Text = r["Category"].ToString();
+            int cid = CurrentCompanyId;
+            DataTable dt = DbHelper.ExecuteDataTable(
+                "SELECT Title, Description, Category, Budget FROM Campaigns WHERE CampaignID = @id AND CompanyID = @cid",
+                new SqlParameter("@id", id),
+                new SqlParameter("@cid", cid)
+            );
 
-                                decimal budgetVal = 0;
-                                if (decimal.TryParse(r["Budget"].ToString(), out budgetVal))
-                                {
-                                    lblBudget.Text = "₹" + budgetVal.ToString("N0");
-                                }
-                                else
-                                {
-                                    lblBudget.Text = r["Budget"].ToString();
-                                }
-                                loaded = true;
-                            }
-                        }
-                    }
+            if (dt.Rows.Count > 0)
+            {
+                DataRow r = dt.Rows[0];
+                string title = r["Title"].ToString();
+                lblTitle.Text = Server.HtmlEncode(title);
+                litBreadcrumbTitle.Text = Server.HtmlEncode(title);
+                lblDescription.Text = Server.HtmlEncode(r["Description"].ToString());
+                lblCategory.Text = Server.HtmlEncode(r["Category"].ToString());
+
+                decimal budgetVal = 0;
+                if (decimal.TryParse(r["Budget"].ToString(), out budgetVal))
+                {
+                    lblBudget.Text = "₹" + budgetVal.ToString("N0");
+                }
+                else
+                {
+                    lblBudget.Text = Server.HtmlEncode(r["Budget"].ToString());
                 }
             }
-            catch (Exception)
+            else
             {
-            }
-
-            if (!loaded)
-            {
-                // Default Figma reference representation
-                lblTitle.Text = "Smart Tech Product Promotion";
-                litBreadcrumbTitle.Text = "Smart Tech Product Promotion";
-                lblCategory.Text = "Tech & Gadgets";
-                lblBudget.Text = "₹10,000";
-                lblDescription.Text = "We are launching our new flagship smart device and looking for tech-savvy creators to help us spread the word. This campaign involves creating unboxing and review content focusing on the innovative features and seamless integration into daily life.";
+                Response.Redirect("~/Advertiser/MyCampaigns.aspx");
             }
         }
 
         private void LoadApplicants(int campaignId)
         {
-            DataTable dtApplicants = new DataTable();
-            bool hasDbData = false;
+            string query = @"
+                SELECT a.ApplicationID, i.InfluencerID, i.Name AS InfluencerName, i.FollowerCount, i.Category, a.Status, a.AppliedAt
+                FROM Applications a
+                INNER JOIN Influencers i ON a.InfluencerID = i.InfluencerID
+                WHERE a.CampaignID = @cid";
 
-            try
-            {
-                string cs = GetConnectionString();
-                if (!string.IsNullOrEmpty(cs) && !cs.Contains("YOUR_SERVER"))
-                {
-                    using (SqlConnection con = new SqlConnection(cs))
-                    {
-                        string query = "SELECT a.ApplicationID, i.InfluencerID, i.Name AS InfluencerName, i.FollowerCount, i.Category, a.Status, a.AppliedAt " +
-                                       "FROM Applications a " +
-                                       "INNER JOIN Influencers i ON a.InfluencerID = i.InfluencerID " +
-                                       "WHERE a.CampaignID = @cid";
-                        SqlDataAdapter da = new SqlDataAdapter(query, con);
-                        da.SelectCommand.Parameters.AddWithValue("@cid", campaignId);
-                        da.Fill(dtApplicants);
-                        hasDbData = true;
-                    }
-                }
-            }
-            catch (Exception)
-            {
-            }
-
-            if (!hasDbData || dtApplicants.Rows.Count == 0)
-            {
-                dtApplicants = GetSampleApplicants();
-            }
+            DataTable dtApplicants = DbHelper.ExecuteDataTable(query, new SqlParameter("@cid", campaignId));
 
             // Compute summary metrics
             int total = dtApplicants.Rows.Count;
@@ -200,25 +173,6 @@ namespace Influish_net.Advertiser
             litShowingApplicants.Text = string.Format("Showing 1 to {0} of {1} applicants", filteredTable.Rows.Count, total);
         }
 
-        private DataTable GetSampleApplicants()
-        {
-            DataTable dt = new DataTable();
-            dt.Columns.Add("ApplicationID", typeof(int));
-            dt.Columns.Add("InfluencerID", typeof(int));
-            dt.Columns.Add("InfluencerName", typeof(string));
-            dt.Columns.Add("Category", typeof(string));
-            dt.Columns.Add("FollowerCount", typeof(int));
-            dt.Columns.Add("Status", typeof(string));
-            dt.Columns.Add("AppliedAt", typeof(DateTime));
-
-            dt.Rows.Add(1, 101, "Mer Nensi", "Tech", 18500, "Pending", DateTime.Now.AddDays(-2));
-            dt.Rows.Add(2, 102, "Devaliya Riddhi", "Lifestyle, Tech", 25200, "Accepted", DateTime.Now.AddDays(-3));
-            dt.Rows.Add(3, 103, "Sarah Jenkins", "Tech", 12800, "Rejected", DateTime.Now.AddDays(-4));
-            dt.Rows.Add(4, 104, "Alex Johnson", "Tech", 45100, "Pending", DateTime.Now.AddDays(-5));
-
-            return dt;
-        }
-
         protected void ddlStatusFilter_SelectedIndexChanged(object sender, EventArgs e)
         {
             LoadApplicants(CurrentCampaignId);
@@ -251,24 +205,55 @@ namespace Influish_net.Advertiser
 
         private void UpdateApplicationStatus(int appId, string status)
         {
-            try
+            int cid = CurrentCompanyId;
+
+            // Verify ownership via join
+            string checkQuery = @"
+                SELECT a.ApplicationID, a.CampaignID, c.Title, i.UserID 
+                FROM Applications a
+                INNER JOIN Campaigns c ON a.CampaignID = c.CampaignID
+                INNER JOIN Influencers i ON a.InfluencerID = i.InfluencerID
+                WHERE a.ApplicationID = @appId AND c.CompanyID = @cid";
+
+            DataTable dt = DbHelper.ExecuteDataTable(
+                checkQuery,
+                new SqlParameter("@appId", appId),
+                new SqlParameter("@cid", cid)
+            );
+
+            if (dt.Rows.Count > 0)
             {
-                string cs = GetConnectionString();
-                if (!string.IsNullOrEmpty(cs) && !cs.Contains("YOUR_SERVER"))
+                DataRow r = dt.Rows[0];
+                int campaignId = Convert.ToInt32(r["CampaignID"]);
+                string campaignTitle = r["Title"].ToString();
+                object targetUserId = r["UserID"];
+
+                // Update application status
+                DbHelper.ExecuteNonQuery(
+                    "UPDATE Applications SET Status = @s WHERE ApplicationID = @id",
+                    new SqlParameter("@s", status),
+                    new SqlParameter("@id", appId)
+                );
+
+                // Notify influencer
+                if (targetUserId != null && targetUserId != DBNull.Value)
                 {
-                    using (SqlConnection con = new SqlConnection(cs))
-                    {
-                        SqlCommand cmd = new SqlCommand("UPDATE Applications SET Status=@s WHERE ApplicationID=@id", con);
-                        cmd.Parameters.AddWithValue("@s", status);
-                        cmd.Parameters.AddWithValue("@id", appId);
-                        con.Open();
-                        cmd.ExecuteNonQuery();
-                    }
+                    int infUserId = Convert.ToInt32(targetUserId);
+                    string notificationMsg = status == "Accepted"
+                        ? string.Format("Congratulations! Your application for campaign \"{0}\" has been accepted.", campaignTitle)
+                        : string.Format("Your application for campaign \"{0}\" was reviewed and not selected at this time.", campaignTitle);
+
+                    DbHelper.ExecuteNonQuery(
+                        @"INSERT INTO Notifications(UserID, Message, RelatedType, RelatedID, IsRead, CreatedAt)
+                          VALUES(@uid, @msg, @type, @cid, 0, GETDATE())",
+                        new SqlParameter("@uid", infUserId),
+                        new SqlParameter("@msg", notificationMsg),
+                        new SqlParameter("@type", status == "Accepted" ? "Acceptance" : "System"),
+                        new SqlParameter("@cid", campaignId)
+                    );
                 }
             }
-            catch (Exception)
-            {
-            }
+
             LoadApplicants(CurrentCampaignId);
         }
 

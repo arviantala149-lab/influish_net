@@ -1,60 +1,7 @@
-<%@ Master Language="C#" %>
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="AdminMaster.master.cs" Inherits="Influish_net.Admin.AdminMaster" %>
 <%--
-    =
-    Admin/AdminMaster.master  —  Admin Master Page (Shared Layout)
-    Language  : C# (inline runat="server" block)
-    Purpose   : Provides the sidebar, top bar, and ContentPlaceHolders
-                that every Admin page reuses.
-    Syllabus  : Section 6 — Master Pages, Section 8 — Session State
-    =
-
-    WHAT IS A MASTER PAGE?
-    A master page is a template. Instead of repeating the sidebar
-    and topbar HTML on every page, we write it once here and all
-    Admin pages inherit it using MasterPageFile="~/Admin/AdminMaster.master"
-    =
+    Admin/AdminMaster.master — Admin Master Page
 --%>
-
-<%-- ====
-VB SERVER-SIDE CODE — runs before the page is sent to browser
-     ==== --%>
-<script runat="server">
-
-    protected void Page_Load(object sender, EventArgs e)
-    {
-        if (Session["AdminLoggedIn"] == null)
-        {
-            Session["AdminLoggedIn"] = true;
-            Session["AdminName"] = "Arvi Antala";
-            Session["AdminRole"] = "System Admin";
-        }
-
-        string adminName = Session["AdminName"] != null ? Session["AdminName"].ToString() : "Arvi Antala";
-        string adminRole = Session["AdminRole"] != null ? Session["AdminRole"].ToString() : "System Admin";
-
-        lblAdminName.Text = adminName;
-        lblAdminRole.Text = adminRole;
-        lblAvatar.Text = adminName.Length > 0 ? adminName[0].ToString().ToUpper() : "A";
-
-        string currentPage = System.IO.Path.GetFileName(Request.Url.AbsolutePath).ToLower();
-        switch (currentPage)
-        {
-            case "dashboard.aspx":   lnkDashboard.CssClass = "nav-item active"; break;
-            case "manageusers.aspx": lnkUsers.CssClass = "nav-item active"; break;
-            case "managecampaigns.aspx": lnkCampaigns.CssClass = "nav-item active"; break;
-            case "reportssupport.aspx":  lnkReports.CssClass = "nav-item active"; break;
-        }
-    }
-
-    protected void btnLogout_Click(object sender, EventArgs e)
-    {
-        Session.Clear();
-        Session.Abandon();
-        Response.Redirect("~/Admin/Login.aspx");
-    }
-
-</script>
-
 <!DOCTYPE html>
 <html lang="en">
 <head runat="server">
@@ -149,7 +96,7 @@ VB SERVER-SIDE CODE — runs before the page is sent to browser
                         </asp:ContentPlaceHolder>
                     </div>
                     <div class="topbar-right">
-                        <div class="topbar-bell" title="Notifications">&#128276;</div>
+                        <%--<div class="topbar-bell" title="Notifications">&#128276;</div>%>--%>
                         <div class="topbar-admin">
                             <div>
                                 <div class="topbar-admin-name">

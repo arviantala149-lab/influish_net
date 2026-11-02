@@ -33,7 +33,7 @@
                  ============================== -->
             <asp:Panel ID="pnlInfluencer" runat="server" CssClass="auth-card" style="max-width: 520px;">
                 <div style="text-align: center; margin-bottom: 12px;">
-                    <span class="auth-role-badge">⭐ Influencer Registration</span>
+                    <span class="auth-role-badge"> Influencer Registration</span>
                 </div>
 
                 <h1 class="auth-title" style="text-align: center;">Join as Influencer</h1>
@@ -42,6 +42,11 @@
                 <asp:ValidationSummary ID="valSummaryInfluencer" runat="server" ValidationGroup="InfluencerVal"
                     CssClass="validation-summary" DisplayMode="BulletList" HeaderText="Please fix the following:"
                     style="background:#FEE2E2;color:#B91C1C;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px;" />
+
+                <asp:Panel ID="pnlInfError" runat="server" Visible="false"
+                    style="background:#FEE2E2;color:#B91C1C;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px;font-weight:500;border:1px solid #FCA5A5;">
+                    <asp:Label ID="lblInfError" runat="server" />
+                </asp:Panel>
 
                 <div class="form-group">
                     <label for="txtInfFullName">Full Name</label>
@@ -157,6 +162,11 @@
                 <asp:ValidationSummary ID="valSummaryAdvertiser" runat="server" ValidationGroup="AdvertiserVal"
                     CssClass="validation-summary" DisplayMode="BulletList" HeaderText="Please fix the following:"
                     style="background:#FEE2E2;color:#B91C1C;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px;" />
+
+                <asp:Panel ID="pnlAdvError" runat="server" Visible="false"
+                    style="background:#FEE2E2;color:#B91C1C;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px;font-weight:500;border:1px solid #FCA5A5;">
+                    <asp:Label ID="lblAdvError" runat="server" />
+                </asp:Panel>
 
                 <div class="form-row">
                     <div class="form-group mb-0">

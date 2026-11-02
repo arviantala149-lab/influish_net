@@ -1,4 +1,4 @@
-<%@ Page Title="Set Up Profile" Language="C#" AutoEventWireup="true" %>
+<%@ Page Title="Set Up Profile" Language="C#" AutoEventWireup="true" CodeBehind="ProfileSetup.aspx.cs" Inherits="Influish_net.ProfileSetup" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -14,21 +14,17 @@
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" runat="server" />
 </head>
 <body>
-    <script runat="server">
-        protected void btnSave_Click(object sender, EventArgs e)
-        {
-            if (Page.IsValid)
-            {
-                Response.Redirect("~/Dashboard.aspx");
-            }
-        }
-    </script>
     <form runat="server" id="frmProfileSetup">
         <div class="auth-page" style="padding: 40px 24px;">
 
             <div class="auth-card" style="max-width:520px;">
 
                 <h1 class="auth-title" style="text-align:center; color:var(--purple-primary); margin-bottom:28px;">Set Up Profile</h1>
+
+                <asp:Panel ID="pnlStatus" runat="server" Visible="false"
+                    style="background:#FEE2E2;color:#B91C1C;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px;font-weight:500;border:1px solid #FCA5A5;">
+                    <asp:Label ID="lblStatus" runat="server" />
+                </asp:Panel>
 
                 <!-- Avatar -->
                 <div class="profile-avatar-wrap" style="margin-bottom:28px;">
@@ -43,7 +39,7 @@
                 <!-- Full Name -->
                 <div class="form-group">
                     <label for="txtFullName">Full Name</label>
-                    <asp:TextBox ID="txtFullName" runat="server" placeholder="Devaliya Riddhi" CssClass="form-control" />
+                    <asp:TextBox ID="txtFullName" runat="server" placeholder="Riddhi Devaliya" CssClass="form-control" />
                     <asp:RequiredFieldValidator ID="rfvFullName" runat="server"
                         ControlToValidate="txtFullName" ErrorMessage="Full Name is required." Display="Dynamic"
                         style="font-size:12px;color:#B91C1C;margin-top:4px;" />
@@ -54,7 +50,7 @@
                     <label for="txtInstagram">Instagram Handle</label>
                     <div class="form-control-icon">
                         <span class="icon" style="font-size:14px;font-weight:600;color:var(--text-muted);">@</span>
-                        <asp:TextBox ID="txtInstagram" runat="server" placeholder="riddhi.09" />
+                        <asp:TextBox ID="txtInstagram" runat="server" placeholder="riddhi.creates" />
                     </div>
                 </div>
 
@@ -62,7 +58,7 @@
                 <div class="form-row">
                     <div class="form-group mb-0">
                         <label for="txtFollowers">Followers</label>
-                        <asp:TextBox ID="txtFollowers" runat="server" placeholder="18,500" CssClass="form-control" TextMode="Number" />
+                        <asp:TextBox ID="txtFollowers" runat="server" placeholder="18500" CssClass="form-control" TextMode="Number" />
                     </div>
                     <div class="form-group mb-0">
                         <label for="txtAge">Age</label>
@@ -74,16 +70,13 @@
                 <div class="form-group" style="margin-top:18px;">
                     <label for="ddlCategory">Category</label>
                     <asp:DropDownList ID="ddlCategory" runat="server" CssClass="form-control">
-                        <asp:ListItem Value="">Select a category</asp:ListItem>
                         <asp:ListItem Value="Technology">Technology</asp:ListItem>
-                        <asp:ListItem Value="Fashion">Fashion</asp:ListItem>
-                        <asp:ListItem Value="Lifestyle">Lifestyle</asp:ListItem>
-                        <asp:ListItem Value="Food">Food &amp; Beverage</asp:ListItem>
-                        <asp:ListItem Value="Fitness">Fitness &amp; Health</asp:ListItem>
-                        <asp:ListItem Value="Travel">Travel</asp:ListItem>
-                        <asp:ListItem Value="Beauty">Beauty</asp:ListItem>
-                        <asp:ListItem Value="Gaming">Gaming</asp:ListItem>
-                        <asp:ListItem Value="Finance">Finance</asp:ListItem>
+                        <asp:ListItem Value="Fashion &amp; Apparel">Fashion &amp; Apparel</asp:ListItem>
+                        <asp:ListItem Value="Beauty &amp; Skincare">Beauty &amp; Skincare</asp:ListItem>
+                        <asp:ListItem Value="Health &amp; Fitness">Health &amp; Fitness</asp:ListItem>
+                        <asp:ListItem Value="Food &amp; Culinary">Food &amp; Culinary</asp:ListItem>
+                        <asp:ListItem Value="Travel &amp; Adventure">Travel &amp; Adventure</asp:ListItem>
+                        <asp:ListItem Value="Lifestyle &amp; Decor">Lifestyle &amp; Decor</asp:ListItem>
                     </asp:DropDownList>
                 </div>
 

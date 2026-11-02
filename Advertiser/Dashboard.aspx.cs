@@ -1,16 +1,45 @@
 using System;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Influish_net.Helpers;
 
 namespace Influish_net.Advertiser
 {
     public partial class Dashboard : Page
     {
+        private int CurrentCompanyId
+        {
+            get
+            {
+                if (Session["CompanyID"] != null)
+                {
+                    return Convert.ToInt32(Session["CompanyID"]);
+                }
+
+                if (Session["UserID"] != null)
+                {
+                    int userId = Convert.ToInt32(Session["UserID"]);
+                    object cid = DbHelper.ExecuteScalar(
+                        "SELECT CompanyID FROM Companies WHERE UserID = @uid",
+                        new SqlParameter("@uid", userId)
+                    );
+                    if (cid != null && cid != DBNull.Value)
+                    {
+                        int id = Convert.ToInt32(cid);
+                        Session["CompanyID"] = id;
+                        return id;
+                    }
+                }
+                return 0;
+            }
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
+            AuthHelper.RequireRole(this, "Advertiser");
+
             if (!IsPostBack)
             {
                 LoadCompanyName();
@@ -19,137 +48,72 @@ namespace Influish_net.Advertiser
             }
         }
 
-        private string GetConnectionString()
-        {
-            try
-            {
-                var conn = ConfigurationManager.ConnectionStrings["InfluishConnection"];
-                if (conn != null)
-                {
-                    return conn.ConnectionString;
-                }
-            }
-            catch
-            {
-            }
-            return string.Empty;
-        }
-
         private void LoadCompanyName()
         {
-            try
+            int cid = CurrentCompanyId;
+            if (cid > 0)
             {
-                string cs = GetConnectionString();
-                if (!string.IsNullOrEmpty(cs) && !cs.Contains("YOUR_SERVER"))
+                object name = DbHelper.ExecuteScalar(
+                    "SELECT CompanyName FROM Companies WHERE CompanyID = @cid",
+                    new SqlParameter("@cid", cid)
+                );
+                if (name != null && !string.IsNullOrWhiteSpace(name.ToString()))
                 {
-                    using (SqlConnection con = new SqlConnection(cs))
-                    {
-                        SqlCommand cmd = new SqlCommand("SELECT TOP 1 CompanyName FROM Companies", con);
-                        con.Open();
-                        object result = cmd.ExecuteScalar();
-                        if (result != null && !string.IsNullOrWhiteSpace(result.ToString()))
-                        {
-                            lblCompanyName.Text = result.ToString().Trim();
-                            return;
-                        }
-                    }
+                    lblCompanyName.Text = Server.HtmlEncode(name.ToString().Trim());
+                    return;
                 }
             }
-            catch (Exception)
-            {
-            }
-            lblCompanyName.Text = "TechNova Solutions";
+
+            lblCompanyName.Text = Session["User"] != null ? Server.HtmlEncode(Session["User"].ToString()) : "Brand Partner";
         }
 
         private void LoadStatistics()
         {
-            bool hasDbData = false;
-            try
-            {
-                string cs = GetConnectionString();
-                if (!string.IsNullOrEmpty(cs) && !cs.Contains("YOUR_SERVER"))
-                {
-                    using (SqlConnection con = new SqlConnection(cs))
-                    {
-                        con.Open();
-                        SqlCommand cmdActive = new SqlCommand("SELECT COUNT(*) FROM Campaigns WHERE Status='Active' OR Status='Open'", con);
-                        lblActiveCampaigns.Text = cmdActive.ExecuteScalar().ToString();
+            int cid = CurrentCompanyId;
 
-                        SqlCommand cmdApplicants = new SqlCommand("SELECT COUNT(*) FROM Applications", con);
-                        lblTotalApplicants.Text = cmdApplicants.ExecuteScalar().ToString();
+            // Active Campaigns
+            object activeObj = DbHelper.ExecuteScalar(
+                "SELECT COUNT(*) FROM Campaigns WHERE CompanyID = @cid AND (Status = 'Active' OR Status = 'Open')",
+                new SqlParameter("@cid", cid)
+            );
+            lblActiveCampaigns.Text = activeObj != null ? activeObj.ToString() : "0";
 
-                        SqlCommand cmdAccepted = new SqlCommand("SELECT COUNT(*) FROM Applications WHERE Status='Accepted'", con);
-                        lblAccepted.Text = cmdAccepted.ExecuteScalar().ToString();
+            // Total Applicants
+            object appObj = DbHelper.ExecuteScalar(
+                "SELECT COUNT(*) FROM Applications a INNER JOIN Campaigns c ON a.CampaignID = c.CampaignID WHERE c.CompanyID = @cid",
+                new SqlParameter("@cid", cid)
+            );
+            lblTotalApplicants.Text = appObj != null ? appObj.ToString() : "0";
 
-                        SqlCommand cmdPending = new SqlCommand("SELECT COUNT(*) FROM Applications WHERE Status='Pending'", con);
-                        lblPending.Text = cmdPending.ExecuteScalar().ToString();
-                        hasDbData = true;
-                    }
-                }
-            }
-            catch (Exception)
-            {
-            }
+            // Accepted Influencers
+            object accObj = DbHelper.ExecuteScalar(
+                "SELECT COUNT(*) FROM Applications a INNER JOIN Campaigns c ON a.CampaignID = c.CampaignID WHERE c.CompanyID = @cid AND a.Status = 'Accepted'",
+                new SqlParameter("@cid", cid)
+            );
+            lblAccepted.Text = accObj != null ? accObj.ToString() : "0";
 
-            if (!hasDbData)
-            {
-                // Default Figma reference values for presentation
-                lblActiveCampaigns.Text = "3";
-                lblTotalApplicants.Text = "48";
-                lblAccepted.Text = "12";
-                lblPending.Text = "8";
-            }
+            // Pending Influencers
+            object pendObj = DbHelper.ExecuteScalar(
+                "SELECT COUNT(*) FROM Applications a INNER JOIN Campaigns c ON a.CampaignID = c.CampaignID WHERE c.CompanyID = @cid AND a.Status = 'Pending'",
+                new SqlParameter("@cid", cid)
+            );
+            lblPending.Text = pendObj != null ? pendObj.ToString() : "0";
         }
 
         private void LoadCampaigns()
         {
-            bool bound = false;
-            try
-            {
-                string cs = GetConnectionString();
-                if (!string.IsNullOrEmpty(cs) && !cs.Contains("YOUR_SERVER"))
-                {
-                    using (SqlConnection con = new SqlConnection(cs))
-                    {
-                        string query = "SELECT c.CampaignID, c.Title, c.Category, c.Budget, c.Status, ISNULL(a.AppCount, 0) AS ApplicantCount " +
-                                       "FROM Campaigns c " +
-                                       "LEFT JOIN (SELECT CampaignID, COUNT(*) AS AppCount FROM Applications GROUP BY CampaignID) a " +
-                                       "ON c.CampaignID = a.CampaignID " +
-                                       "ORDER BY c.CampaignID DESC";
-                        SqlDataAdapter da = new SqlDataAdapter(query, con);
-                        DataTable dt = new DataTable();
-                        da.Fill(dt);
-                        if (dt.Rows.Count > 0)
-                        {
-                            gvCampaigns.DataSource = dt;
-                            gvCampaigns.DataBind();
-                            bound = true;
-                        }
-                    }
-                }
-            }
-            catch (Exception)
-            {
-            }
+            int cid = CurrentCompanyId;
+            string query = @"
+                SELECT TOP 10 c.CampaignID, c.Title, c.Category, c.Budget, c.Status, ISNULL(a.AppCount, 0) AS ApplicantCount
+                FROM Campaigns c
+                LEFT JOIN (SELECT CampaignID, COUNT(*) AS AppCount FROM Applications GROUP BY CampaignID) a
+                    ON c.CampaignID = a.CampaignID
+                WHERE c.CompanyID = @cid
+                ORDER BY c.CampaignID DESC";
 
-            if (!bound)
-            {
-                // Populate Figma sample campaigns if database is not yet seeded
-                DataTable dtSample = new DataTable();
-                dtSample.Columns.Add("CampaignID", typeof(int));
-                dtSample.Columns.Add("Title", typeof(string));
-                dtSample.Columns.Add("Category", typeof(string));
-                dtSample.Columns.Add("Budget", typeof(decimal));
-                dtSample.Columns.Add("Status", typeof(string));
-                dtSample.Columns.Add("ApplicantCount", typeof(int));
-
-                dtSample.Rows.Add(1, "Smart Tech Promotion", "Tech & Gadgets", 10000m, "Open", 14);
-                dtSample.Rows.Add(2, "Wireless Earbuds Review", "Tech", 15000m, "Open", 8);
-                dtSample.Rows.Add(3, "FitTrack Pro", "Fitness & Health", 5000m, "Closed", 26);
-
-                gvCampaigns.DataSource = dtSample;
-                gvCampaigns.DataBind();
-            }
+            DataTable dt = DbHelper.ExecuteDataTable(query, new SqlParameter("@cid", cid));
+            gvCampaigns.DataSource = dt;
+            gvCampaigns.DataBind();
         }
 
         public string GetStatusBadgeClass(object statusObj)
@@ -204,7 +168,7 @@ namespace Influish_net.Advertiser
             int count = 0;
             if (int.TryParse(countObj.ToString(), out count))
             {
-                return count > 0 ? count + " pending" : "0 applicants";
+                return count > 0 ? count + " applicant" + (count > 1 ? "s" : "") : "0 applicants";
             }
             return "0 applicants";
         }
@@ -222,26 +186,17 @@ namespace Influish_net.Advertiser
         protected void lnkDelete_Click(object sender, EventArgs e)
         {
             LinkButton lb = (LinkButton)sender;
-            int id = 0;
-            if (int.TryParse(lb.CommandArgument, out id))
+            int campaignId = 0;
+            if (int.TryParse(lb.CommandArgument, out campaignId))
             {
-                try
-                {
-                    string cs = GetConnectionString();
-                    if (!string.IsNullOrEmpty(cs) && !cs.Contains("YOUR_SERVER"))
-                    {
-                        using (SqlConnection con = new SqlConnection(cs))
-                        {
-                            SqlCommand cmd = new SqlCommand("DELETE FROM Campaigns WHERE CampaignID=@id", con);
-                            cmd.Parameters.AddWithValue("@id", id);
-                            con.Open();
-                            cmd.ExecuteNonQuery();
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                }
+                int cid = CurrentCompanyId;
+                // Delete safely scoped to logged in company
+                DbHelper.ExecuteNonQuery(
+                    "DELETE FROM Campaigns WHERE CampaignID = @id AND CompanyID = @cid",
+                    new SqlParameter("@id", campaignId),
+                    new SqlParameter("@cid", cid)
+                );
+
                 LoadStatistics();
                 LoadCampaigns();
             }

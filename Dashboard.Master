@@ -1,4 +1,4 @@
-<%@ Master Language="C#" AutoEventWireup="true" %>
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Dashboard.Master.cs" Inherits="Influish_net.DashboardMaster" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -37,7 +37,7 @@
                     </div>
                     <div>
                         <div class="brand-name">Influish</div>
-                        <div class="brand-sub">Marketplace</div>
+                        <div class="brand-sub">Creator Portal</div>
                     </div>
                 </div>
 
@@ -57,6 +57,7 @@
                     <a href="~/Notifications.aspx" runat="server" id="sidebarNotifications" class="sidebar-link">
                         <span class="nav-icon">🔔</span>
                         Notifications
+                        <asp:Label ID="lblNotifBadge" runat="server" CssClass="badge-dot" Visible="false" />
                     </a>
                     <a href="~/Profile.aspx" runat="server" id="sidebarProfile" class="sidebar-link">
                         <span class="nav-icon">👤</span>
@@ -69,10 +70,10 @@
                         <span class="nav-icon">❓</span>
                         Support
                     </a>
-                    <a href="~/Default.aspx" runat="server" id="sidebarLogout">
+                    <asp:LinkButton ID="lnkLogout" runat="server" OnClick="lnkLogout_Click" CausesValidation="false">
                         <span class="nav-icon">↪</span>
                         Logout
-                    </a>
+                    </asp:LinkButton>
                 </div>
             </aside>
 
@@ -82,14 +83,18 @@
             <header class="topbar">
                 <div class="topbar-search">
                     <span class="search-icon">🔍</span>
-                    <asp:TextBox ID="txtTopSearch" runat="server" placeholder="Search campaigns, brands..." CssClass="form-control" style="border-radius:99px;" />
+                    <asp:TextBox ID="txtTopSearch" runat="server" placeholder="Search campaigns, brands..." CssClass="form-control" style="border-radius:99px;" OnTextChanged="txtTopSearch_TextChanged" AutoPostBack="true" />
                 </div>
                 <div class="topbar-actions">
-                    <div class="topbar-icon-btn" title="Notifications">
+                    <a href="~/Notifications.aspx" runat="server" class="topbar-icon-btn" title="Notifications" style="text-decoration:none; color:inherit;">
                         🔔
-                        <span class="badge-dot"></span>
-                    </div>
-                    <img src="https://i.pravatar.cc/100?img=47" alt="User Avatar" class="topbar-avatar" id="topbarAvatar" />
+                        <asp:Label ID="lblTopNotifDot" runat="server" CssClass="badge-dot" Visible="false" />
+                    </a>
+                    <a href="~/Profile.aspx" runat="server" title="My Profile" style="text-decoration:none;">
+                        <div class="topbar-avatar" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#EC4899);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;">
+                            <asp:Literal ID="litAvatarInitials" runat="server" Text="R" />
+                        </div>
+                    </a>
                 </div>
             </header>
 

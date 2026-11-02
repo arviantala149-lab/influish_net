@@ -14,8 +14,11 @@ namespace Influish_net.Advertiser
         protected global::System.Web.UI.HtmlControls.HtmlAnchor lnkCreate;
         protected global::System.Web.UI.HtmlControls.HtmlAnchor lnkNotifications;
         protected global::System.Web.UI.HtmlControls.HtmlAnchor lnkProfile;
+        protected global::System.Web.UI.WebControls.LinkButton lnkLogout;
+        protected global::System.Web.UI.WebControls.Literal litNotificationBadge;
         protected global::System.Web.UI.WebControls.Literal litAvatar;
         protected global::System.Web.UI.WebControls.Literal litCompanyName;
+        protected global::System.Web.UI.WebControls.ContentPlaceHolder HeadContent;
         protected global::System.Web.UI.WebControls.ContentPlaceHolder MainContent;
     }
 }

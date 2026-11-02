@@ -1,11 +1,5 @@
-<%@ Page Title="Notifications" Language="C#" MasterPageFile="~/Dashboard.Master" AutoEventWireup="true" %>
+<%@ Page Title="Notifications" Language="C#" MasterPageFile="~/Dashboard.Master" AutoEventWireup="true" CodeBehind="Notifications.aspx.cs" Inherits="Influish_net.Notifications" %>
 
-<script runat="server">
-    protected void btnMarkAllRead_Click(object sender, EventArgs e)
-    {
-        Response.Redirect("~/Notifications.aspx");
-    }
-</script>
 <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
     <meta name="description" content="Stay updated on your Influish marketplace activity." />
 </asp:Content>
@@ -22,60 +16,30 @@
             style="color:var(--purple-primary); font-weight:600; font-size:14px;">Mark all as read</asp:LinkButton>
     </div>
 
-    <!-- Notification 1 — Unread + Action -->
-    <div class="notification-item unread">
-        <div class="notif-icon notif-icon-green">✔</div>
-        <div style="flex:1;">
-            <div class="notif-text">Nike accepted your application for the "Summer Activewear 2024" campaign.</div>
-            <div class="notif-time">2 hours ago</div>
-            <div style="margin-top:10px;">
-                <a href="~/CampaignDetails.aspx?id=1" runat="server" class="btn btn-primary btn-sm">View Campaign</a>
+    <asp:Panel ID="pnlNotice" runat="server" Visible="false" style="background:#DCFCE7; color:#15803D; padding:12px; border-radius:8px; margin-bottom:16px; font-size:13px; font-weight:500;">
+        ✓ All notifications marked as read.
+    </asp:Panel>
+
+    <asp:Repeater ID="rptNotifications" runat="server">
+        <ItemTemplate>
+            <div class='<%# "notification-item " + (Convert.ToBoolean(Eval("IsRead")) ? "" : "unread") %>'>
+                <div class='<%# GetIconClass(Eval("RelatedType")) %>'>
+                    <%# GetIconSymbol(Eval("RelatedType")) %>
+                </div>
+                <div style="flex:1;">
+                    <div class="notif-text"><%# Eval("Message") %></div>
+                    <div class="notif-time"><%# FormatTime(Eval("CreatedAt")) %></div>
+                    <%# GetActionButton(Eval("RelatedType"), Eval("RelatedID")) %>
+                </div>
+                <%# Convert.ToBoolean(Eval("IsRead")) ? "" : "<span class=\"notif-dot\"></span>" %>
             </div>
-        </div>
-        <span class="notif-dot"></span>
-    </div>
+        </ItemTemplate>
+    </asp:Repeater>
 
-    <!-- Notification 2 — Unread + Avatar -->
-    <div class="notification-item unread">
-        <img src="https://i.pravatar.cc/80?img=15" alt="Alex Fitness" class="notif-img" />
-        <div style="flex:1;">
-            <div class="notif-text">Alex Fitness applied to your "Pre-workout Supplement Launch" campaign.</div>
-            <div class="notif-time">5 hours ago</div>
-            <div style="margin-top:10px;">
-                <a href="~/Profile.aspx" runat="server" class="btn btn-outline btn-sm">Review Profile</a>
-            </div>
-        </div>
-        <span class="notif-dot"></span>
-    </div>
-
-    <!-- Notification 3 — Read -->
-    <div class="notification-item">
-        <div class="notif-icon" style="background:var(--purple-light);color:var(--purple-primary);">📢</div>
-        <div style="flex:1;">
-            <div class="notif-text">Your campaign "Tech Gadget Review Q3" is now live and visible to influencers.</div>
-            <div class="notif-time">Yesterday at 14:30</div>
-        </div>
-    </div>
-
-    <!-- Notification 4 — Read + Action -->
-    <div class="notification-item">
-        <div class="notif-icon" style="background:#FEE2E2;color:#EF4444;">💳</div>
-        <div style="flex:1;">
-            <div class="notif-text">Your account balance is running low (&#8377;1,500 remaining). Please top up to keep campaigns active.</div>
-            <div class="notif-time">Yesterday at 09:15</div>
-            <div style="margin-top:10px;">
-                <a href="#" class="btn btn-outline btn-sm">Add Funds</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Notification 5 — Read -->
-    <div class="notification-item">
-        <div class="notif-icon notif-icon-gray">ℹ</div>
-        <div style="flex:1;">
-            <div class="notif-text">Influish platform update: New analytics features are now available in your dashboard.</div>
-            <div class="notif-time">Oct 24, 2023</div>
-        </div>
-    </div>
+    <asp:Panel ID="pnlEmpty" runat="server" Visible="false" style="padding:48px 24px; text-align:center; background:#fff; border-radius:12px; border:1px solid #E5E7EB; margin-top:16px;">
+        <div style="font-size:40px; margin-bottom:12px;">🔔</div>
+        <h3 style="font-size:18px; color:var(--text-heading); font-weight:700;">No notifications yet</h3>
+        <p style="color:var(--text-muted); font-size:14px;">You're all caught up! Updates regarding campaign applications and messages will appear here.</p>
+    </asp:Panel>
 
 </asp:Content>

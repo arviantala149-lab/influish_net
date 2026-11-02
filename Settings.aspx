@@ -7,14 +7,9 @@
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
 
     <script runat="server">
-        protected void btnSaveBasic_Click(object sender, EventArgs e)
+        protected void Page_Load(object sender, EventArgs e)
         {
-            btnSaveBasic.Text = "Saved ✓";
-        }
-
-        protected void btnUpdateSecurity_Click(object sender, EventArgs e)
-        {
-            btnUpdateSecurity.Text = "Updated ✓";
+            Response.Redirect("~/Profile.aspx");
         }
     </script>
 

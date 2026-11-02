@@ -1,9 +1,9 @@
 using System;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using Influish_net.Helpers;
 
 namespace Influish_net.Admin
 {
@@ -11,65 +11,107 @@ namespace Influish_net.Admin
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            AuthHelper.RequireRole(this, "Admin");
+
             if (!IsPostBack)
             {
                 LoadUsers();
             }
         }
 
-        private void LoadUsers()
+        protected void Filter_Changed(object sender, EventArgs e)
         {
-            var dt = new DataTable();
-            bool dbSuccess = false;
-
-            try
-            {
-                var connSetting = ConfigurationManager.ConnectionStrings["InfluishDB"];
-                if (connSetting != null && !string.IsNullOrEmpty(connSetting.ConnectionString) && !connSetting.ConnectionString.Contains("YOUR_SERVER"))
-                {
-                    using (var conn = new SqlConnection(connSetting.ConnectionString))
-                    {
-                        string query = "SELECT UserID, FullName, Email, Role, Status, JoinedDate FROM Users ORDER BY JoinedDate DESC";
-                        var da = new SqlDataAdapter(query, conn);
-                        da.Fill(dt);
-                        if (dt.Rows.Count > 0)
-                        {
-                            dbSuccess = true;
-                        }
-                    }
-                }
-            }
-            catch (Exception)
-            {
-            }
-
-            if (!dbSuccess || dt.Rows.Count == 0)
-            {
-                dt = GetSampleUsers();
-            }
-
-            gvUsers.DataSource = dt;
-            gvUsers.DataBind();
-            lblCount.Text = "Showing " + dt.Rows.Count + " user(s)";
+            LoadUsers();
         }
 
-        private DataTable GetSampleUsers()
+        private void LoadUsers()
         {
-            var dt = new DataTable();
-            dt.Columns.Add("UserID", typeof(int));
-            dt.Columns.Add("FullName", typeof(string));
-            dt.Columns.Add("Email", typeof(string));
-            dt.Columns.Add("Role", typeof(string));
-            dt.Columns.Add("Status", typeof(string));
-            dt.Columns.Add("JoinedDate", typeof(DateTime));
+            try
+            {
+                string query = "SELECT UserID, FullName, Email, Role, Status, JoinedDate FROM Users WHERE 1=1 ";
+                var parameters = new System.Collections.Generic.List<SqlParameter>();
 
-            dt.Rows.Add(1, "Riddhi Devaliya", "riddhi.creates@example.com", "Influencer", "Active", DateTime.Today.AddDays(-10));
-            dt.Rows.Add(2, "TechNova Solutions", "contact@technova.io", "Advertiser", "Active", DateTime.Today.AddDays(-25));
-            dt.Rows.Add(3, "Aarav Sharma", "aarav.vlogs@example.com", "Influencer", "Active", DateTime.Today.AddDays(-15));
-            dt.Rows.Add(4, "Aura Beauty Co.", "partnerships@aurabeauty.in", "Advertiser", "Active", DateTime.Today.AddDays(-30));
-            dt.Rows.Add(5, "Priya Patel", "priya.style@example.com", "Influencer", "Pending", DateTime.Today.AddDays(-2));
+                string search = txtSearch.Text.Trim();
+                if (!string.IsNullOrEmpty(search))
+                {
+                    query += " AND (FullName LIKE @search OR Email LIKE @search) ";
+                    parameters.Add(new SqlParameter("@search", "%" + search + "%"));
+                }
 
-            return dt;
+                string role = ddlRoleFilter.SelectedValue;
+                if (!string.IsNullOrEmpty(role))
+                {
+                    query += " AND Role = @role ";
+                    parameters.Add(new SqlParameter("@role", role));
+                }
+
+                string status = ddlStatusFilter.SelectedValue;
+                if (!string.IsNullOrEmpty(status))
+                {
+                    query += " AND Status = @status ";
+                    parameters.Add(new SqlParameter("@status", status));
+                }
+
+                query += " ORDER BY JoinedDate DESC, UserID DESC";
+
+                DataTable dt = DbHelper.ExecuteDataTable(query, parameters.ToArray());
+                gvUsers.DataSource = dt;
+                gvUsers.DataBind();
+                lblCount.Text = "Showing " + dt.Rows.Count + " user(s)";
+                lblError.Visible = false;
+            }
+            catch (Exception ex)
+            {
+                lblError.Text = "Error loading users: " + Server.HtmlEncode(ex.Message);
+                lblError.Visible = true;
+            }
+        }
+
+        protected void btnToggleStatus_Command(object sender, CommandEventArgs e)
+        {
+            int userId = 0;
+            if (int.TryParse(e.CommandArgument.ToString(), out userId))
+            {
+                try
+                {
+                    object currentStatusObj = DbHelper.ExecuteScalar(
+                        "SELECT Status FROM Users WHERE UserID = @id",
+                        new SqlParameter("@id", userId)
+                    );
+
+                    if (currentStatusObj != null)
+                    {
+                        string currentStatus = currentStatusObj.ToString();
+                        string newStatus = currentStatus.Equals("Active", StringComparison.OrdinalIgnoreCase) ? "Inactive" : "Active";
+
+                        DbHelper.ExecuteNonQuery(
+                            "UPDATE Users SET Status = @status WHERE UserID = @id",
+                            new SqlParameter("@status", newStatus),
+                            new SqlParameter("@id", userId)
+                        );
+
+                        // Audit log to AdminLogs
+                        int adminId = Session["UserID"] != null ? Convert.ToInt32(Session["UserID"]) : 0;
+                        DbHelper.ExecuteNonQuery(
+                            @"INSERT INTO AdminLogs(AdminUserID, Action, TargetEntity, TargetID, Details, Timestamp)
+                              VALUES(@adminId, 'User Status Updated', 'Users', @targetId, @details, GETDATE())",
+                            new SqlParameter("@adminId", adminId > 0 ? (object)adminId : DBNull.Value),
+                            new SqlParameter("@targetId", userId),
+                            new SqlParameter("@details", string.Format("User ID {0} status changed from {1} to {2}", userId, currentStatus, newStatus))
+                        );
+
+                        lblSuccess.Text = string.Format("User ID {0} status successfully updated to <strong>{1}</strong>.", userId, newStatus);
+                        pnlSuccess.Visible = true;
+                    }
+
+                    LoadUsers();
+                }
+                catch (Exception ex)
+                {
+                    lblError.Text = "Error updating user: " + Server.HtmlEncode(ex.Message);
+                    lblError.Visible = true;
+                }
+            }
         }
 
         public string GetRoleBadge(object role)
@@ -90,7 +132,8 @@ namespace Influish_net.Admin
             {
                 case "active": return "badge badge-active";
                 case "inactive": return "badge badge-inactive";
-                default: return "badge";
+                case "suspended": return "badge badge-deactivated";
+                default: return "badge badge-pending";
             }
         }
 

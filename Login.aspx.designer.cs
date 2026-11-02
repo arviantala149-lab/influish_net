@@ -12,6 +12,8 @@ namespace Influish_net
         protected global::System.Web.UI.WebControls.Literal lblRoleBadge;
         protected global::System.Web.UI.WebControls.Literal litTitle;
         protected global::System.Web.UI.WebControls.Literal litSubtitle;
+        protected global::System.Web.UI.WebControls.Panel pnlError;
+        protected global::System.Web.UI.WebControls.Label lblError;
         protected global::System.Web.UI.WebControls.ValidationSummary valSummaryLogin;
         protected global::System.Web.UI.WebControls.Literal lblEmailLabel;
         protected global::System.Web.UI.WebControls.TextBox txtEmail;
